@@ -1,4 +1,4 @@
-pub const INPUT: &[i32] = &[
+pub static INPUT: &[i32] = &[
 171,
 173,
 174,
@@ -2002,7 +2002,7 @@ pub const INPUT: &[i32] = &[
 ];
 
 #[allow(dead_code)]
-pub const PART2_SAMPLE: &[usize] = &[
+pub static PART2_SAMPLE: &[usize] = &[
     199,
     200,
     208,

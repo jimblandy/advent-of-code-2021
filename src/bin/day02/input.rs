@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use super::{up, down, forward};
 
-pub const SAMPLE_1: &[(i32, i32)] = &[
+pub static SAMPLE_1: &[(i32, i32)] = &[
     forward(5),
     down(5),
     forward(8),
@@ -10,7 +10,7 @@ pub const SAMPLE_1: &[(i32, i32)] = &[
     forward(2),
 ];
 
-pub const INPUT_1: &[(i32, i32)] = &[
+pub static INPUT_1: &[(i32, i32)] = &[
 forward(8),
 forward(3),
 down(8),
