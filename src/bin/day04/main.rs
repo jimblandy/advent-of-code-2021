@@ -1,4 +1,5 @@
 mod input;
+mod parse;
 
 use input::{Board, Input};
 
