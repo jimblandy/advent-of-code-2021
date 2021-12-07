@@ -339,7 +339,7 @@ fn sparse_all_lines(input: &Vec<Line>) -> i32 {
         // All lines are either horizontal, vertical, or 45° diagonal.
         assert!(line.start.1 == line.end.1 ||
                 line.start.0 == line.end.0 ||
-                i32::abs(line.start.0 - line.end.0) == line.end.1 - line.start.1);
+                (line.start.0 - line.end.0).abs() == line.end.1 - line.start.1);
     }
 
     let mut v_actions = vec![];
