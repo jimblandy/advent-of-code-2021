@@ -1,9 +1,6 @@
-#![allow(dead_code, unused_imports)]
-use anyhow::{anyhow, bail, Context, Error, Result};
+use anyhow::{anyhow, bail, Result};
 use aoc_runner_derive::{aoc, aoc_generator};
 use itertools::Itertools;
-use std::str::FromStr;
-use std::num::ParseIntError;
 
 type Pattern = [bool; 7];
 
@@ -65,6 +62,7 @@ fn part1(input: &Vec<Entry>) -> usize {
         .count()
 }
 
+#[cfg(test)]
 fn sample2() -> Vec<Entry> {
     part1_input("\
 be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
@@ -100,17 +98,7 @@ static DIGITS: [Pattern; 10] = [
     [  true,  true,  true,  true, false,  true,  true ], // 9
 ];
 
-/// For each segment, the set of segments it could possibly be.
-type Permitted = [Pattern; 7];
-
-// f 9
-// a 8
-// c 8
-// d 7
-// g 7
-// b 6
-// e 4
-
+#[cfg(test)]
 fn sample1() -> Vec<Entry> {
     part1_input("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf")
         .expect("failed to parse input")
