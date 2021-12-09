@@ -45,11 +45,11 @@ fn test_generate() {
     );
 }
 
-fn compass() -> impl Iterator<Item = (i32, i32)> {
+fn compass() -> impl Iterator<Item = (isize, isize)> {
     std::iter::successors(Some((1, 0)), |&(x, y)| Some((-y, x))).take(4)
 }
 
-fn in_bounds<T>(a: &Array2<T>, r: i32, c: i32) -> Option<(usize, usize)> {
+fn in_bounds<T>(a: &Array2<T>, r: isize, c: isize) -> Option<(usize, usize)> {
     // Man, but Rust *hates* signed array indices
     if 0 <= r && (r as usize) < a.nrows() && 0 <= c && (c as usize) < a.ncols() {
         Some((r as usize, c as usize))
@@ -61,7 +61,7 @@ fn in_bounds<T>(a: &Array2<T>, r: i32, c: i32) -> Option<(usize, usize)> {
 fn neighbors<'a, T>(a: &'a Array2<T>, i: usize, j: usize) -> impl 'a + Iterator<Item = (usize, usize)> {
     compass()
         .filter_map(move |(di, dj)| {
-            in_bounds(a, i as i32 + di, j as i32 + dj)
+            in_bounds(a, i as isize + di, j as isize + dj)
         })
 }
 
