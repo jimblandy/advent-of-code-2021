@@ -111,8 +111,6 @@ fn part2(input: &Array2<i32>) -> usize {
         });
 
     sizes.sort();
-    dbg!(&sizes);
-    dbg!(input.dim(), input.nrows() * input.ncols(), sizes.iter().sum::<usize>());
     sizes[(sizes.len() - 3) ..].iter().product()
 }
 
