@@ -98,12 +98,6 @@ static DIGITS: [Pattern; 10] = [
     [  true,  true,  true,  true, false,  true,  true ], // 9
 ];
 
-#[cfg(test)]
-fn sample1() -> Vec<Entry> {
-    part1_input("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf")
-        .expect("failed to parse input")
-}
-
 type Permutation = [usize; 7];
 
 fn solve_mapping(scrambled: &[Pattern]) -> Result<Permutation> {
@@ -117,14 +111,6 @@ fn solve_mapping(scrambled: &[Pattern]) -> Result<Permutation> {
     }
 
     bail!("Not a valid set of scrambled digits");
-}
-
-#[test]
-fn test_solve_mapping() -> Result<()> {
-    assert_eq!(solve_mapping(&sample1()[0].scrambled)?,
-               [3,4,0,5,6,1,2]);
-
-    Ok(())
 }
 
 fn fix_digit(scrambled: &Pattern, perm: &Permutation) -> usize {
@@ -142,6 +128,20 @@ fn solve_entry(entry: &Entry) -> usize {
     let perm = solve_mapping(&entry.scrambled)
         .expect("failed to solve mapping");
     decode_digits(&entry.out_digits, &perm)
+}
+
+#[cfg(test)]
+fn sample1() -> Vec<Entry> {
+    part1_input("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf")
+        .expect("failed to parse input")
+}
+
+#[test]
+fn test_solve_mapping() -> Result<()> {
+    assert_eq!(solve_mapping(&sample1()[0].scrambled)?,
+               [3,4,0,5,6,1,2]);
+
+    Ok(())
 }
 
 #[test]
