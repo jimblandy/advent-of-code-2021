@@ -7,7 +7,7 @@ fn generate(input: &str) -> Vec<String> {
 
 #[cfg(test)]
 fn sample() -> Vec<String> {
-    generate(include_str!("sample1"))
+    generate(include_str!("sample/day10"))
 }
 
 fn score(ch: char) -> usize {
