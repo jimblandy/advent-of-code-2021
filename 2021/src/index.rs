@@ -1,5 +1,7 @@
 //! Array indexing utilities.
 
+#![allow(dead_code)]
+
 use ndarray::Array2;
 use std::ops;
 

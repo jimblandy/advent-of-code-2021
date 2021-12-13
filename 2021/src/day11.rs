@@ -1,5 +1,7 @@
 use aoc_runner_derive::{aoc, aoc_generator};
-use ndarray::{array, Array2};
+use ndarray::Array2;
+#[cfg(test)]
+use ndarray::array;
 use crate::neighborhood;
 
 #[aoc_generator(day11)]
