@@ -35,7 +35,8 @@ impl Fold {
     }
 }
 
-#[aoc_generator(day13)]
+#[aoc_generator(day13, part1, jimb)]
+#[aoc_generator(day13, part2, jimb)]
 fn generate(input: &str) -> Result<Instructions> {
     let mut lines = input.lines();
     let points: Vec<_> = lines
@@ -94,7 +95,7 @@ fn test_generate() {
                })
 }
 
-#[aoc(day13, part1)]
+#[aoc(day13, part1, jimb)]
 fn part1(input: &Instructions) -> usize {
     input.points
         .iter()
@@ -109,7 +110,7 @@ fn test_part1() {
     assert_eq!(part1(&instructions), 17);
 }
 
-#[aoc(day13, part2)]
+#[aoc(day13, part2, jimb)]
 fn part2(input: &Instructions) -> &'static str {
     let folded = input.points
         .iter()
