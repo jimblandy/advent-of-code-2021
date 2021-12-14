@@ -1,5 +1,3 @@
-#![allow(unused_imports, dead_code)]
-
 use aoc_runner_derive::{aoc, aoc_generator};
 use anyhow::{anyhow, Result};
 use std::cmp;
