@@ -3,7 +3,7 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use anyhow::{anyhow, bail, Result};
 use crate::astar_weighted::astar_weighted;
-use crate::compass_neighborhood;
+use crate::{compass, around};
 use ndarray::Array2;
 #[cfg(test)]
 use ndarray::array;
@@ -47,20 +47,17 @@ fn part1(input: &Array2<u32>) -> usize {
     let size = input.dim();
     let end = [size.0 - 1, size.1 - 1];
 
-    let search = astar_weighted([0,0], |&p: &[usize; 2]| {
-        compass_neighborhood(p, input.dim())
+    let mut search = astar_weighted([0,0], |&p: &[usize; 2]| {
+        around(p, input.dim(), compass())
             .map(|n| {
-                (n, input[n] as usize, (end[0] - n[0] + end[1] - n[1]))
+                (n, input[n] as usize,
+                 (end[0] - n[0] + end[1] - n[1]))
             })
     });
 
-    for edge in search {
-        if edge.to == end {
-            return edge.path_weight;
-        }
-    }
-
-    panic!("Didn't find any path to end");
+    search.find(|edge| edge.to == end)
+        .expect("Didn't find any path to end")
+        .path_weight
 }
 
 #[test]
@@ -75,8 +72,8 @@ fn part2(input: &Array2<u32>) -> usize {
     let size = (tile_size.0 * 5, tile_size.1 * 5);
     let end = [size.0 - 1, size.1 - 1];
 
-    let search = astar_weighted([0,0], |&p: &[usize; 2]| {
-        compass_neighborhood(p, size)
+    let mut search = astar_weighted([0,0], |&p: &[usize; 2]| {
+        around(p, size, compass())
             .map(|n| {
                 let reduced = [n[0] % tile_size.0, n[1] % tile_size.1];
                 let offset = n[0] / tile_size.0 + n[1] / tile_size.1;
@@ -85,13 +82,9 @@ fn part2(input: &Array2<u32>) -> usize {
             })
     });
 
-    for edge in search {
-        if edge.to == end {
-            return edge.path_weight;
-        }
-    }
-
-    panic!("Didn't find any path to end");
+    search.find(|edge| edge.to == end)
+        .expect("Didn't find any path to end")
+        .path_weight
 }
 
 #[test]

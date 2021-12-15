@@ -11,11 +11,15 @@ use std::ops;
 ///
 /// This is probably best used via a local wrapper function for brevity:
 ///
+///     # use ndarray::Array2;
+///     # use aoc2021::index::Signed;
+///     # let arr = Array2::<u32>::zeros((10, 10));
+///     # let (i, j) = (0, 0);
 ///     fn s<T: Default>(array: &Array2<T>) -> Signed<T> {
 ///         Signed::new(array, T::default())
 ///     }
 ///
-///     let value = s(arr)[[i, j]];
+///     let value = s(&arr)[[i, j]];
 ///
 pub struct Signed<'a, T> {
     array: &'a Array2<T>,

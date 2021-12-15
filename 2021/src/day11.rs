@@ -2,7 +2,7 @@ use aoc_runner_derive::{aoc, aoc_generator};
 use ndarray::Array2;
 #[cfg(test)]
 use ndarray::array;
-use crate::neighborhood;
+use crate::{conway, around};
 
 #[aoc_generator(day11)]
 fn generate(input: &str) -> Array2<u32> {
@@ -59,7 +59,7 @@ fn step(energy: &mut Array2<u32>) -> usize {
     while let Some(&ij) = flash_list.get(next) {
         flash_count += 1;
 
-        for nij in neighborhood(ij, energy.dim()) {
+        for nij in around(ij, energy.dim(), conway()) {
             energy[nij] += 1;
             if energy[nij] > 9 && !flashed[nij] {
                 flash_list.push(nij);

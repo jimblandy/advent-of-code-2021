@@ -1,7 +1,7 @@
 use aoc_runner_derive::aoc_lib;
 
-mod index;
-mod astar_weighted;
+pub mod index;
+pub mod astar_weighted;
 
 mod day05;
 mod day06;
@@ -28,44 +28,29 @@ where
     a.flat_map(move |i| b.clone().map(move |j| (i.clone(), j)))
 }
 
-fn neighborhood(p: [usize; 2], bounds: (usize, usize)) -> impl Iterator<Item = [usize; 2]> + Clone {
-    cartesian_product(-1..=1, -1..=1).filter_map(move |(dx, dy)| {
-        if dx == 0 && dy == 0 {
-            return None;
-        }
-
-        // We're counting on the 'as usize' to wrap around for negative values.
-        let x = (p[0] as isize + dx) as usize;
-        let y = (p[1] as isize + dy) as usize;
-
-        if x >= bounds.0 || y >= bounds.1 {
-            return None;
-        }
-
-        Some([x, y])
-    })
-}
-
-fn compass_neighborhood(p: [usize; 2], bounds: (usize, usize)) -> impl Iterator<Item = [usize; 2]> + Clone {
-    compass().filter_map(move |(dx, dy)| {
-        if dx == 0 && dy == 0 {
-            return None;
-        }
-
-        // We're counting on the 'as usize' to wrap around for negative values.
-        let x = (p[0] as isize + dx) as usize;
-        let y = (p[1] as isize + dy) as usize;
-
-        if x >= bounds.0 || y >= bounds.1 {
-            return None;
-        }
-
-        Some([x, y])
-    })
+fn conway() -> impl Iterator<Item = (isize, isize)> + Clone {
+    cartesian_product(-1..=1, -1..=1).filter(|&(dx, dy)| dx != 0 || dy != 0)
 }
 
 fn compass() -> impl Iterator<Item = (isize, isize)> + Clone {
     std::iter::successors(Some((1, 0)), |&(x, y)| Some((-y, x))).take(4)
+}
+
+fn around<I>(p: [usize; 2], bounds: (usize, usize), offsets: I) -> impl Iterator<Item = [usize; 2]> + Clone
+    where I: IntoIterator<Item = (isize, isize)>,
+          I::IntoIter: Clone,
+{
+    offsets.into_iter().filter_map(move |(dx, dy)| {
+        // We're counting on the 'as usize' to wrap around for negative values.
+        let x = (p[0] as isize + dx) as usize;
+        let y = (p[1] as isize + dy) as usize;
+
+        if x >= bounds.0 || y >= bounds.1 {
+            return None;
+        }
+
+        Some([x, y])
+    })
 }
 
 aoc_lib! { year = 2021 }
