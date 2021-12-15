@@ -55,7 +55,6 @@ fn part1(input: &Array2<u32>) -> usize {
     });
 
     for edge in search {
-        println!("{:?}", edge);
         if edge.to == end {
             return edge.path_weight;
         }
@@ -68,4 +67,35 @@ fn part1(input: &Array2<u32>) -> usize {
 fn test_part1() {
     assert_eq!(part1(&generate(include_str!("sample/day15")).unwrap()),
                40);
+}
+
+#[aoc(day15, part2, jimb)]
+fn part2(input: &Array2<u32>) -> usize {
+    let tile_size = input.dim();
+    let size = (tile_size.0 * 5, tile_size.1 * 5);
+    let end = [size.0 - 1, size.1 - 1];
+
+    let search = astar_weighted([0,0], |&p: &[usize; 2]| {
+        compass_neighborhood(p, size)
+            .map(|n| {
+                let reduced = [n[0] % tile_size.0, n[1] % tile_size.1];
+                let offset = n[0] / tile_size.0 + n[1] / tile_size.1;
+                let weight = ((input[reduced] as usize + offset) - 1) % 9 + 1;
+                (n, weight, (end[0] - n[0] + end[1] - n[1]))
+            })
+    });
+
+    for edge in search {
+        if edge.to == end {
+            return edge.path_weight;
+        }
+    }
+
+    panic!("Didn't find any path to end");
+}
+
+#[test]
+fn test_part2() {
+    assert_eq!(part2(&generate(include_str!("sample/day15")).unwrap()),
+               315);
 }
