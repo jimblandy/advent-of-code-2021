@@ -1,4 +1,5 @@
 use aoc_runner_derive::{aoc, aoc_generator};
+use crate::compass;
 use ndarray::{Array2, Zip};
 #[cfg(test)]
 use ndarray::array;
@@ -43,10 +44,6 @@ fn test_generate() {
             [9, 8, 9, 9, 9, 6, 5, 6, 7, 8],
         ]
     );
-}
-
-fn compass() -> impl Iterator<Item = (isize, isize)> {
-    std::iter::successors(Some((1, 0)), |&(x, y)| Some((-y, x))).take(4)
 }
 
 fn in_bounds<T>(a: &Array2<T>, r: isize, c: isize) -> Option<(usize, usize)> {

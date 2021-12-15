@@ -1,6 +1,8 @@
 use aoc_runner_derive::aoc_lib;
 
 mod index;
+mod astar_weighted;
+
 mod day05;
 mod day06;
 mod day07;
@@ -11,6 +13,7 @@ mod day11;
 mod day12;
 mod day13;
 mod day14;
+mod day15;
 
 fn cartesian_product<A, B>(a: A, b: B) -> impl Iterator<Item = (A::Item, B::Item)> + Clone
 where
@@ -41,6 +44,28 @@ fn neighborhood(p: [usize; 2], bounds: (usize, usize)) -> impl Iterator<Item = [
 
         Some([x, y])
     })
+}
+
+fn compass_neighborhood(p: [usize; 2], bounds: (usize, usize)) -> impl Iterator<Item = [usize; 2]> + Clone {
+    compass().filter_map(move |(dx, dy)| {
+        if dx == 0 && dy == 0 {
+            return None;
+        }
+
+        // We're counting on the 'as usize' to wrap around for negative values.
+        let x = (p[0] as isize + dx) as usize;
+        let y = (p[1] as isize + dy) as usize;
+
+        if x >= bounds.0 || y >= bounds.1 {
+            return None;
+        }
+
+        Some([x, y])
+    })
+}
+
+fn compass() -> impl Iterator<Item = (isize, isize)> + Clone {
+    std::iter::successors(Some((1, 0)), |&(x, y)| Some((-y, x))).take(4)
 }
 
 aoc_lib! { year = 2021 }
