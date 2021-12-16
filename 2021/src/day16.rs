@@ -46,8 +46,8 @@ impl<'a, B> Bits for &'a mut B
 
 #[derive(Clone)]
 struct Bytes {
-    bytes: Vec<u8>,
-    next_byte: usize,
+    words: Vec<u64>,
+    next_word: usize,
     remaining_bits: usize,
 }
 
@@ -68,24 +68,24 @@ fn insert(a: u64, n: usize, b: u64) -> u64 {
 impl Bits for Bytes {
     #[inline]
     fn len(&self) -> usize {
-        (self.bytes.len() - self.next_byte) * 8 + self.remaining_bits
+        (self.words.len() - self.next_word) * 64 + self.remaining_bits
     }
 
     #[inline]
     fn is_empty(&self) -> bool {
-        self.next_byte >= self.bytes.len()
+        self.next_word >= self.words.len()
     }
 
     #[inline]
     fn get(&mut self, mut n: usize) -> u64 {
         let mut acc = 0;
         while n > 0 {
-            let take = cmp::min(8, cmp::min(n, self.remaining_bits));
+            let take = cmp::min(64, cmp::min(n, self.remaining_bits));
             self.remaining_bits -= take;
-            acc = insert(acc, take, (self.bytes[self.next_byte] >> self.remaining_bits) as u64);
+            acc = insert(acc, take, (self.words[self.next_word] >> self.remaining_bits) as u64);
             if self.remaining_bits == 0 {
-                self.next_byte += 1;
-                self.remaining_bits = 8;
+                self.next_word += 1;
+                self.remaining_bits = 64;
             }
             n -= take;
         }
@@ -96,10 +96,21 @@ impl Bits for Bytes {
 
 impl Bytes {
     fn new(bytes: Vec<u8>) -> Self {
+        let words = bytes.chunks(8)
+            .map(|chunk| {
+                let missing = 8 - chunk.len();
+                if missing == 0 {
+                    u64::from_be_bytes(chunk.try_into().unwrap())
+                } else {
+                    chunk.iter().fold(0, |n, &b| n << 8 | b as u64)
+                        << 8 * missing
+                }
+            })
+            .collect::<Vec<u64>>();
         Bytes {
-            bytes,
-            next_byte: 0,
-            remaining_bits: 8,
+            words,
+            next_word: 0,
+            remaining_bits: 64,
         }
     }
 
@@ -126,7 +137,7 @@ fn test_bytes() {
     assert_eq!(b.get(5), 0b10111);
     assert_eq!(b.get(5), 0b11110);
     assert_eq!(b.get(5), 0b00101);
-    assert_eq!(b.get(3), 0b000);
+    assert_eq!(b.get(43), 0);
     assert!(b.is_empty());
 }
 
