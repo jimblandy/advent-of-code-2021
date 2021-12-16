@@ -53,11 +53,7 @@ struct Bytes {
 
 #[inline]
 fn mask(n: usize) -> u64 {
-    if n == 64 {
-        !0
-    } else {
-        (1 << n) - 1
-    }
+    (1 << n) - 1
 }
 
 #[inline]
