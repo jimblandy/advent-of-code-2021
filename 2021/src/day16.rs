@@ -385,7 +385,7 @@ fn evaluate_faster(stack: &mut Vec<u64>, bits: &mut Bytes) -> u64 {
 }
 
 #[aoc(day16, part2, jimb_faster)]
-fn part2_no_dyn(input: &Bytes) -> u64 {
+fn part2_faster(input: &Bytes) -> u64 {
     let mut bytes = input.clone();
     evaluate_faster(&mut Vec::with_capacity(1000), &mut bytes)
 }
