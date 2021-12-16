@@ -5,6 +5,7 @@ use anyhow::{anyhow, bail, Result};
 use std::cmp;
 
 trait Bits {
+    fn len(&self) -> usize;
     fn is_empty(&self) -> bool;
     fn get(&mut self, n: usize) -> u64;
 
@@ -27,10 +28,17 @@ trait Bits {
 impl<'a, B> Bits for &'a mut B
     where B: Bits + ?Sized
 {
+    #[inline]
+    fn len(&self) -> usize {
+        (**self).len()
+    }
+
+    #[inline]
     fn is_empty(&self) -> bool {
         (**self).is_empty()
     }
 
+    #[inline]
     fn get(&mut self, n: usize) -> u64 {
         (**self).get(n)
     }
@@ -43,6 +51,7 @@ struct Bytes {
     remaining_bits: usize,
 }
 
+#[inline]
 fn mask(n: usize) -> u64 {
     if n == 64 {
         !0
@@ -51,15 +60,23 @@ fn mask(n: usize) -> u64 {
     }
 }
 
+#[inline]
 fn insert(a: u64, n: usize, b: u64) -> u64 {
     a << n | b & mask(n)
 }
 
 impl Bits for Bytes {
+    #[inline]
+    fn len(&self) -> usize {
+        (self.bytes.len() - self.next_byte) * 8 + self.remaining_bits
+    }
+
+    #[inline]
     fn is_empty(&self) -> bool {
         self.next_byte >= self.bytes.len()
     }
 
+    #[inline]
     fn get(&mut self, mut n: usize) -> u64 {
         let mut acc = 0;
         while n > 0 {
@@ -119,6 +136,10 @@ struct Take<B> {
 }
 
 impl<B: Bits> Bits for Take<B> {
+    fn len(&self) -> usize {
+        self.remaining
+    }
+
     fn is_empty(&self) -> bool {
         self.remaining == 0
     }
@@ -210,6 +231,7 @@ fn test_add_version_numbers() {
 
 #[aoc_generator(day16, part1, jimb)]
 #[aoc_generator(day16, part2, jimb)]
+#[aoc_generator(day16, part2, jimb_faster)]
 fn generate(input: &str) -> Result<Bytes> {
     Bytes::from_hex(input)
 }
@@ -296,4 +318,63 @@ fn test_evaluate() {
 fn part2(input: &Bytes) -> u64 {
     let mut bytes = input.clone();
     evaluate(&mut bytes)
+}
+
+fn evaluate_faster(stack: &mut Vec<u64>, bits: &mut Bytes) -> u64 {
+    let _version = bits.get(3);
+    let ty = bits.get(3);
+
+    match ty {
+        LITERAL => {
+            let mut value = 0;
+            loop {
+                let chunk = bits.get(5);
+                value = insert(value, 4, chunk);
+                if chunk & 0b10000 == 0 {
+                    break;
+                }
+            }
+            value
+        }
+        operator => {
+            let frame_ptr = stack.len();
+            let length_type = bits.get(1);
+            if length_type == 0 {
+                let bit_length = bits.get(15) as usize;
+                let following = bits.len() - bit_length;
+                while bits.len() > following {
+                    let value = evaluate_faster(stack, bits);
+                    stack.push(value);
+                }
+            } else {
+                let packet_count = bits.get(11);
+                for _ in 0..packet_count {
+                    let value = evaluate_faster(stack, bits);
+                    stack.push(value);
+                }
+            };
+
+            let operands = &stack[frame_ptr..];
+            let result = match operator {
+                SUM => operands.iter().sum(),
+                PRODUCT => operands.iter().product(),
+                MIN => *operands.iter().min().unwrap(),
+                MAX => *operands.iter().max().unwrap(),
+                GT => (operands[0] > operands[1]) as u64,
+                LT => (operands[0] < operands[1]) as u64,
+                EQ => (operands[0] == operands[1]) as u64,
+                _ => panic!("Unrecognized opcode: {}", operator),
+            };
+
+            stack.truncate(frame_ptr);
+
+            result
+        }
+    }
+}
+
+#[aoc(day16, part2, jimb_faster)]
+fn part2_no_dyn(input: &Bytes) -> u64 {
+    let mut bytes = input.clone();
+    evaluate_faster(&mut Vec::with_capacity(1000), &mut bytes)
 }
