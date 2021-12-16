@@ -47,6 +47,7 @@ impl<'a, B> Bits for &'a mut B
 #[derive(Clone)]
 struct Words {
     words: Vec<u64>,
+    current: u64,
     next_word: usize,
     remaining_bits: usize,
 }
@@ -69,25 +70,21 @@ impl Bits for Words {
 
     #[inline]
     fn is_empty(&self) -> bool {
-        self.next_word >= self.words.len()
+        self.remaining_bits == 0 && self.next_word >= self.words.len()
     }
 
     #[inline]
     fn get(&mut self, n: usize) -> u64 {
-        let unmasked = if n < self.remaining_bits {
+        let unmasked = if n <= self.remaining_bits {
             self.remaining_bits -= n;
-            self.words[self.next_word] >> self.remaining_bits
-        } else if n == self.remaining_bits {
-            let value = self.words[self.next_word];
-            self.next_word += 1;
-            self.remaining_bits = 64; // could be wrong at end
-            value
+            self.current >> self.remaining_bits
         } else {
             let rest = n - self.remaining_bits;
-            let acc = self.words[self.next_word] << rest;
+            let top = self.current << rest;
+            self.current = self.words[self.next_word];
             self.next_word += 1;
             self.remaining_bits = 64 - rest;
-            acc | self.words[self.next_word] >> self.remaining_bits
+            top | self.current >> self.remaining_bits
         };
 
         unmasked & mask(n)
@@ -107,10 +104,22 @@ impl Words {
                 }
             })
             .collect::<Vec<u64>>();
-        Words {
-            words,
-            next_word: 0,
-            remaining_bits: 64,
+
+        if words.is_empty() {
+            Words {
+                words,
+                current: 0,
+                next_word: 1,
+                remaining_bits: 0
+            }
+        } else {
+            let current = words[0];
+            Words {
+                words,
+                current,
+                next_word: 1,
+                remaining_bits: 64,
+            }
         }
     }
 
