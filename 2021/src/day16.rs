@@ -73,20 +73,24 @@ impl Bits for Words {
     }
 
     #[inline]
-    fn get(&mut self, mut n: usize) -> u64 {
-        let mut acc = 0;
-        while n > 0 {
-            let take = cmp::min(64, cmp::min(n, self.remaining_bits));
-            self.remaining_bits -= take;
-            acc = insert(acc, take, (self.words[self.next_word] >> self.remaining_bits) as u64);
-            if self.remaining_bits == 0 {
-                self.next_word += 1;
-                self.remaining_bits = 64;
-            }
-            n -= take;
-        }
+    fn get(&mut self, n: usize) -> u64 {
+        let unmasked = if n < self.remaining_bits {
+            self.remaining_bits -= n;
+            self.words[self.next_word] >> self.remaining_bits
+        } else if n == self.remaining_bits {
+            let value = self.words[self.next_word];
+            self.next_word += 1;
+            self.remaining_bits = 64; // could be wrong at end
+            value
+        } else {
+            let rest = n - self.remaining_bits;
+            let acc = self.words[self.next_word] << rest;
+            self.next_word += 1;
+            self.remaining_bits = 64 - rest;
+            acc | self.words[self.next_word] >> self.remaining_bits
+        };
 
-        acc
+        unmasked & mask(n)
     }
 }
 
