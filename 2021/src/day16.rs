@@ -45,7 +45,7 @@ impl<'a, B> Bits for &'a mut B
 }
 
 #[derive(Clone)]
-struct Bytes {
+struct Words {
     words: Vec<u64>,
     next_word: usize,
     remaining_bits: usize,
@@ -61,7 +61,7 @@ fn insert(a: u64, n: usize, b: u64) -> u64 {
     a << n | b & mask(n)
 }
 
-impl Bits for Bytes {
+impl Bits for Words {
     #[inline]
     fn len(&self) -> usize {
         (self.words.len() - self.next_word) * 64 + self.remaining_bits
@@ -90,7 +90,7 @@ impl Bits for Bytes {
     }
 }
 
-impl Bytes {
+impl Words {
     fn new(bytes: Vec<u8>) -> Self {
         let words = bytes.chunks(8)
             .map(|chunk| {
@@ -103,7 +103,7 @@ impl Bytes {
                 }
             })
             .collect::<Vec<u64>>();
-        Bytes {
+        Words {
             words,
             next_word: 0,
             remaining_bits: 64,
@@ -121,13 +121,13 @@ impl Bytes {
             bytes.push(byte)
         }
 
-        Ok(Bytes::new(bytes))
+        Ok(Words::new(bytes))
     }
 }
 
 #[test]
-fn test_bytes() {
-    let mut b = Bytes::new(vec![0xd2, 0xfe, 0x28]);
+fn test_words() {
+    let mut b = Words::new(vec![0xd2, 0xfe, 0x28]);
     assert_eq!(b.get(3), 6);
     assert_eq!(b.get(3), 4);
     assert_eq!(b.get(5), 0b10111);
@@ -160,7 +160,7 @@ impl<B: Bits> Bits for Take<B> {
 
 #[test]
 fn test_take() {
-    let mut b = Bytes::from_hex("38006F45291200").unwrap();
+    let mut b = Words::from_hex("38006F45291200").unwrap();
 
     assert_eq!(b.get(3), 1);
     assert_eq!(b.get(3), 6);
@@ -224,8 +224,8 @@ fn add_version_numbers(bits: &mut dyn Bits) -> u64 {
 #[test]
 fn test_add_version_numbers() {
     fn v(s: &str) -> u64 {
-        let mut bytes = Bytes::from_hex(s).unwrap();
-        part1(&mut bytes)
+        let mut words = Words::from_hex(s).unwrap();
+        part1(&mut words)
     }
 
     assert_eq!(v("38006F45291200"), 9);
@@ -237,16 +237,59 @@ fn test_add_version_numbers() {
 }
 
 #[aoc_generator(day16, part1, jimb)]
+#[aoc_generator(day16, part1, jimb_faster)]
 #[aoc_generator(day16, part2, jimb)]
 #[aoc_generator(day16, part2, jimb_faster)]
-fn generate(input: &str) -> Result<Bytes> {
-    Bytes::from_hex(input)
+fn generate(input: &str) -> Result<Words> {
+    Words::from_hex(input)
 }
 
 #[aoc(day16, part1, jimb)]
-fn part1(input: &Bytes) -> u64 {
-    let mut bytes = input.clone();
-    add_version_numbers(&mut bytes)
+fn part1(input: &Words) -> u64 {
+    let mut words = input.clone();
+    add_version_numbers(&mut words)
+}
+
+fn add_version_numbers_faster(bits: &mut Words) -> u64 {
+    let version = bits.get(3);
+    let ty = bits.get(3);
+    let mut total = version;
+    match ty {
+        LITERAL => {
+            let mut value = 0;
+            loop {
+                let chunk = bits.get(5);
+                value = insert(value, 4, chunk);
+                if chunk & 0b10000 == 0 {
+                    break;
+                }
+            }
+            let _ = value;
+        }
+        _operator => {
+            let length_type = bits.get(1);
+            if length_type == 0 {
+                let bit_length = bits.get(15) as usize;
+                let following = bits.len() - bit_length;
+                while bits.len() > following {
+                    total += add_version_numbers(bits);
+                }
+            } else {
+                let packet_count = bits.get(11);
+                for _ in 0..packet_count {
+                    total += add_version_numbers(bits);
+                }
+            }
+        }
+    };
+
+    total
+}
+
+#[aoc(day16, part1, jimb_faster)]
+fn part1_faster(input: &Words) -> u64 {
+    let mut words = input.clone();
+    add_version_numbers_faster(&mut words)
 }
 
 const LITERAL: u64 = 4;
@@ -307,8 +350,8 @@ fn evaluate(bits: &mut dyn Bits) -> u64 {
 #[test]
 fn test_evaluate() {
     fn e(input: &str) -> u64 {
-        let mut bytes = Bytes::from_hex(input).unwrap();
-        evaluate(&mut bytes)
+        let mut words = Words::from_hex(input).unwrap();
+        evaluate(&mut words)
     }
 
     assert_eq!(e("C200B40A82"), 3);
@@ -322,12 +365,12 @@ fn test_evaluate() {
 }
 
 #[aoc(day16, part2, jimb)]
-fn part2(input: &Bytes) -> u64 {
-    let mut bytes = input.clone();
-    evaluate(&mut bytes)
+fn part2(input: &Words) -> u64 {
+    let mut words = input.clone();
+    evaluate(&mut words)
 }
 
-fn evaluate_faster(stack: &mut Vec<u64>, bits: &mut Bytes) -> u64 {
+fn evaluate_faster(stack: &mut Vec<u64>, bits: &mut Words) -> u64 {
     let _version = bits.get(3);
     let ty = bits.get(3);
 
@@ -381,7 +424,7 @@ fn evaluate_faster(stack: &mut Vec<u64>, bits: &mut Bytes) -> u64 {
 }
 
 #[aoc(day16, part2, jimb_faster)]
-fn part2_faster(input: &Bytes) -> u64 {
-    let mut bytes = input.clone();
-    evaluate_faster(&mut Vec::with_capacity(1000), &mut bytes)
+fn part2_faster(input: &Words) -> u64 {
+    let mut words = input.clone();
+    evaluate_faster(&mut Vec::with_capacity(1000), &mut words)
 }
