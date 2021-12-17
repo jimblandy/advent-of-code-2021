@@ -24,10 +24,10 @@ type Pos = (i32, i32);
 
 #[aoc(day17, part1, jimb)]
 fn part1(input: &Target) -> i32 {
-    for initial_x in suitable_initial_x(input.x.clone()) {
-        for initial_y in (0 ..= -*input.y.start()).rev() {
+    for initial_vx in suitable_initial_vx(input.x.clone()) {
+        for initial_vy in (0 ..= -*input.y.start()).rev() {
             let mut max_y = 0;
-            if positions(initial_x, initial_y)
+            if positions(initial_vx, initial_vy)
                 .inspect(|pos| {
                     if pos.1 > max_y {
                         max_y = pos.1;
@@ -43,18 +43,18 @@ fn part1(input: &Target) -> i32 {
     panic!("nothing worked");
 }
 
-fn suitable_initial_x(range: RangeInclusive<i32>) -> impl Iterator<Item = i32> {
+fn suitable_initial_vx(range: RangeInclusive<i32>) -> impl Iterator<Item = i32> {
     (0 ..= *range.end())
         .filter(move |&initial_x| {
             x_positions(initial_x).any(|pos| range.contains(&pos))
         })
 }
 
-fn x_positions(initial_x: i32) -> impl Iterator<Item = i32> {
+fn x_positions(initial_vx: i32) -> impl Iterator<Item = i32> {
     let mut pos = 0;
-    (0 ..= initial_x)
+    (0 ..= initial_vx)
         .rev()
-        .map(move |x| { pos += x; pos })
+        .map(move |vx| { pos += vx; pos })
 }
 
 fn positions(mut vx: i32, mut vy: i32) -> impl Iterator<Item = (i32, i32)> {
@@ -77,11 +77,11 @@ fn test_part1() {
 
 #[aoc(day17, part2, jimb)]
 fn part2(input: &Target) -> usize {
-    suitable_initial_x(input.x.clone())
-        .flat_map(|initial_x| {
+    suitable_initial_vx(input.x.clone())
+        .flat_map(|initial_vx| {
             (*input.y.start() ..= -*input.y.start())
                 .rev()
-                .map(move |init_y| (initial_x, init_y))
+                .map(move |init_y| (initial_vx, init_y))
         })
         .filter(|&(vx, vy)| {
             positions(vx, vy)
