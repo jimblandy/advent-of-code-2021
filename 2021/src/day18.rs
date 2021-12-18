@@ -48,7 +48,8 @@ fn test_num_display() {
                "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]");
 }
 
-#[aoc_generator(day18)]
+#[aoc_generator(day18, part1, jimb)]
+#[aoc_generator(day18, part2, jimb)]
 fn generator(input: &str) -> Result<Vec<Num>> {
     input.lines().map(parse_num).collect()
 }
@@ -327,7 +328,7 @@ fn test_magnitude() {
                129);
 }
 
-#[aoc(day18, part1)]
+#[aoc(day18, part1, jimb)]
 fn part1(input: &Vec<Num>) -> u64 {
    (&input[1..]).iter().cloned().fold(input[0].clone(), add).magnitude()
 }
@@ -338,8 +339,8 @@ fn test_part1() {
                4140);
 }
 
-#[aoc(day18, part2)]
-fn test_part2(input: &Vec<Num>) -> u64 {
+#[aoc(day18, part2, jimb)]
+fn part2(input: &Vec<Num>) -> u64 {
     cartesian_product(0..input.len(), 0..input.len())
         .filter(|(i, j)| i != j)
         .map(|(i, j)| add(input[i].clone(), input[j].clone()).magnitude())
