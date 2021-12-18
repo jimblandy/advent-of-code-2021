@@ -2,6 +2,7 @@
 
 use aoc_runner_derive::{aoc, aoc_generator};
 use anyhow::{anyhow, bail, Result};
+use crate::cartesian_product;
 use std::fmt;
 use std::mem::replace;
 use std::num::ParseIntError;
@@ -47,7 +48,7 @@ fn test_num_display() {
                "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]");
 }
 
-#[aoc_generator(day18, part1)]
+#[aoc_generator(day18)]
 fn generator(input: &str) -> Result<Vec<Num>> {
     input.lines().map(parse_num).collect()
 }
@@ -335,4 +336,13 @@ fn part1(input: &Vec<Num>) -> u64 {
 fn test_part1() {
     assert_eq!(part1(&generator(include_str!("sample/day18.homework")).unwrap()),
                4140);
+}
+
+#[aoc(day18, part2)]
+fn test_part2(input: &Vec<Num>) -> u64 {
+    cartesian_product(0..input.len(), 0..input.len())
+        .filter(|(i, j)| i != j)
+        .map(|(i, j)| add(input[i].clone(), input[j].clone()).magnitude())
+        .max()
+        .unwrap()
 }
