@@ -18,8 +18,9 @@ mod day16;
 mod day17;
 mod day18;
 mod day18_sed;
+mod day18_heap;
 
-fn cartesian_product<A, B>(a: A, b: B) -> impl Iterator<Item = (A::Item, B::Item)> + Clone
+pub fn cartesian_product<A, B>(a: A, b: B) -> impl Iterator<Item = (A::Item, B::Item)> + Clone
 where
     A: IntoIterator,
     B: IntoIterator,
@@ -32,15 +33,15 @@ where
     a.flat_map(move |i| b.clone().map(move |j| (i.clone(), j)))
 }
 
-fn conway() -> impl Iterator<Item = (isize, isize)> + Clone {
+pub fn conway() -> impl Iterator<Item = (isize, isize)> + Clone {
     cartesian_product(-1..=1, -1..=1).filter(|&(dx, dy)| dx != 0 || dy != 0)
 }
 
-fn compass() -> impl Iterator<Item = (isize, isize)> + Clone {
+pub fn compass() -> impl Iterator<Item = (isize, isize)> + Clone {
     std::iter::successors(Some((1, 0)), |&(x, y)| Some((-y, x))).take(4)
 }
 
-fn around<I>(p: [usize; 2], bounds: (usize, usize), offsets: I) -> impl Iterator<Item = [usize; 2]> + Clone
+pub fn around<I>(p: [usize; 2], bounds: (usize, usize), offsets: I) -> impl Iterator<Item = [usize; 2]> + Clone
     where I: IntoIterator<Item = (isize, isize)>,
           I::IntoIter: Clone,
 {
