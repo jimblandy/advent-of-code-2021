@@ -19,6 +19,7 @@ mod day17;
 mod day18;
 mod day18_sed;
 mod day18_heap;
+mod day19;
 
 pub fn cartesian_product<A, B>(a: A, b: B) -> impl Iterator<Item = (A::Item, B::Item)> + Clone
 where
@@ -31,6 +32,22 @@ where
     let a = a.into_iter();
     let b = b.into_iter();
     a.flat_map(move |i| b.clone().map(move |j| (i.clone(), j)))
+}
+
+/// Like `cartesian_product`, but the inner iterator can depend on the outer.
+///
+/// For example, to generate unordered pairs:
+///
+///     triangular_product(0..n, |i| i+1 .. n)
+pub fn triangular_product<A, B, F>(a: A, mut make_b: F) -> impl Iterator<Item = (A::Item, B::Item)>
+where
+    A: IntoIterator,
+    A::Item: Clone,
+    F: for<'a> FnMut(&'a A::Item) -> B,
+    B: IntoIterator,
+{
+    let a = a.into_iter();
+    a.flat_map(move |i| make_b(&i).into_iter().map(move |j| (i.clone(), j)))
 }
 
 pub fn conway() -> impl Iterator<Item = (isize, isize)> + Clone {
