@@ -36,6 +36,11 @@ impl Point {
             .then(this.1.cmp(&rhs.1))
             .then(this.2.cmp(&rhs.2))
     }
+
+    fn manhattan(lhs: Point, rhs: Point) -> i32 {
+        let diff = lhs - rhs;
+        diff.0.abs() + diff.1.abs() + diff.2.abs()
+    }
 }
 
 impl Matrix {
@@ -100,6 +105,14 @@ impl ops::Mul<i32> for Point {
 
     fn mul(self, rhs: i32) -> Self::Output {
         Point::muls(self, rhs)
+    }
+}
+
+impl ops::Div<i32> for Point {
+    type Output = Point;
+
+    fn div(self, rhs: i32) -> Self::Output {
+        Point(self.0 / rhs, self.1 / rhs, self.2 / rhs)
     }
 }
 
@@ -485,13 +498,13 @@ fn test_positions() {
     assert_eq!(p[4].1, Point(-20, -1133, 1061));
 }
 
-#[aoc(day19, part1)]
-fn part1(problem: &Problem) -> usize {
+/// Return a HashSet of beacon's positions relative to scanner 0.
+fn beacon_positions(problem: &Problem) -> HashSet<Point> {
     let m = pairwise_matches(&problem);
     let t = spanning_tree(&m);
     let p = positions(&problem, &m, &t);
 
-    let beacons: HashSet<Point> = problem.scanners
+    problem.scanners
         .iter()
         .enumerate()
         .flat_map(|(i, scanner)| {
@@ -500,12 +513,32 @@ fn part1(problem: &Problem) -> usize {
                 .iter()
                 .map(move |&beacon| m * beacon + p)
         })
-        .collect();
+        .collect()
+}
 
-    beacons.len()
+#[aoc(day19, part1)]
+fn part1(problem: &Problem) -> usize {
+    beacon_positions(problem).len()
 }
 
 #[test]
 fn test_part1() {
     assert_eq!(part1(&sample()), 79);
+}
+
+#[aoc(day19, part2)]
+fn part2(problem: &Problem) -> i32 {
+    let m = pairwise_matches(&problem);
+    let t = spanning_tree(&m);
+    let p = positions(&problem, &m, &t);
+
+    cartesian_product(&p, &p)
+        .map(|(&(_, a), &(_, b))| Point::manhattan(a, b))
+        .max()
+        .unwrap()
+}
+
+#[test]
+fn test_part2() {
+    assert_eq!(part2(&sample()), 3621);
 }

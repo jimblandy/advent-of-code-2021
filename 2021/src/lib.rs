@@ -3,22 +3,22 @@ use aoc_runner_derive::aoc_lib;
 pub mod index;
 pub mod astar_weighted;
 
-mod day05;
-mod day06;
-mod day07;
-mod day08;
-mod day09;
-mod day10;
-mod day11;
-mod day12;
-mod day13;
-mod day14;
-mod day15;
-mod day16;
-mod day17;
-mod day18;
-mod day18_sed;
-mod day18_heap;
+//mod day05;
+//mod day06;
+//mod day07;
+//mod day08;
+//mod day09;
+//mod day10;
+//mod day11;
+//mod day12;
+//mod day13;
+//mod day14;
+//mod day15;
+//mod day16;
+//mod day17;
+//mod day18;
+//mod day18_sed;
+//mod day18_heap;
 mod day19;
 
 pub fn cartesian_product<A, B>(a: A, b: B) -> impl Iterator<Item = (A::Item, B::Item)> + Clone
