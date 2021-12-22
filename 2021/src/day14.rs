@@ -1,5 +1,3 @@
-#![allow(unused_imports, dead_code)]
-
 use aoc_runner_derive::{aoc, aoc_generator};
 use anyhow::{anyhow, bail, Result};
 use std::fmt;
@@ -184,6 +182,7 @@ fn element_prevalence(counts: &Counts, original_template: &[Elt]) -> [usize; 26]
     prevalence
 }
 
+#[cfg(test)]
 fn print_prevalence(prevalence: &[usize; 26]) {
     for elt in Elt::all() {
         if prevalence[elt.index()] > 0 {

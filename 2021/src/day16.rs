@@ -1,8 +1,5 @@
-#![allow(unused_imports, dead_code)]
-
 use aoc_runner_derive::{aoc, aoc_generator};
-use anyhow::{anyhow, bail, Result};
-use std::cmp;
+use anyhow::{anyhow, Result};
 
 trait Bits {
     fn len(&self) -> usize;

@@ -1,7 +1,5 @@
-#![allow(unused_imports, dead_code)]
-
 use aoc_runner_derive::{aoc, aoc_generator};
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 use crate::astar_weighted::astar_weighted;
 use crate::{compass, around};
 use ndarray::Array2;

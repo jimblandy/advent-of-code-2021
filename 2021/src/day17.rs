@@ -1,10 +1,6 @@
-#![allow(unused_imports, dead_code)]
-
 use aoc_runner_derive::{aoc, aoc_generator};
-use anyhow::{anyhow, bail, Result};
+use anyhow::Result;
 use std::ops::RangeInclusive;
-
-struct Problem;
 
 #[aoc_generator(day17, part1, jimb)]
 #[aoc_generator(day17, part2, jimb)]
@@ -19,8 +15,6 @@ struct Target {
     x: RangeInclusive<i32>,
     y: RangeInclusive<i32>
 }
-
-type Pos = (i32, i32);
 
 #[aoc(day17, part1, jimb)]
 fn part1(input: &Target) -> i32 {

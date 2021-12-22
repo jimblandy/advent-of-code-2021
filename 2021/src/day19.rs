@@ -1,8 +1,6 @@
-#![allow(unused_imports, dead_code)]
 use aoc_runner_derive::{aoc, aoc_generator};
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Result};
 use crate::cartesian_product;
-use itertools::Itertools;
 use std::{cmp, ops};
 use std::collections::BinaryHeap;
 use hashbrown::{HashSet, HashMap};
@@ -28,13 +26,6 @@ impl Point {
     #[inline]
     const fn neg(this: Point) -> Point {
         Point::muls(this, -1)
-    }
-
-    #[inline]
-    fn lexcmp(this: Point, rhs: Point) -> cmp::Ordering {
-        this.0.cmp(&rhs.0)
-            .then(this.1.cmp(&rhs.1))
-            .then(this.2.cmp(&rhs.2))
     }
 
     fn manhattan(lhs: Point, rhs: Point) -> i32 {

@@ -1,7 +1,5 @@
-#![allow(unused_imports, dead_code)]
-
 use aoc_runner_derive::{aoc, aoc_generator};
-use anyhow::{anyhow, bail, Result};
+use anyhow::Result;
 use crate::cartesian_product;
 use std::ops::Range;
 use std::fmt::Write;
