@@ -21,8 +21,12 @@ mod day18;
 mod day18_sed;
 mod day18_heap;
 mod day19;
+mod day20;
 mod day22;
 
+/// Return the Cartesian product of two iterators.
+///
+/// The first iterator's item's vary slowest.
 pub fn cartesian_product<A, B>(a: A, b: B) -> impl Iterator<Item = (A::Item, B::Item)> + Clone
 where
     A: IntoIterator,
@@ -52,6 +56,10 @@ where
     a.flat_map(move |i| make_b(&i).into_iter().map(move |j| (i.clone(), j)))
 }
 
+/// Return the relative positions of cells in a Conway (Game of Life) neighborhood.
+///
+/// Both components vary from -1 to 1, with `(0, 0)` omitted. The first
+/// component varies slowest.
 pub fn conway() -> impl Iterator<Item = (isize, isize)> + Clone {
     cartesian_product(-1..=1, -1..=1).filter(|&(dx, dy)| dx != 0 || dy != 0)
 }
