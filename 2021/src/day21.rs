@@ -7,7 +7,8 @@ use std::collections::BinaryHeap;
 
 type Pos = u8;
 
-#[aoc_generator(day21)]
+#[aoc_generator(day21, part1, jimb)]
+#[aoc_generator(day21, part2, jimb)]
 fn generator(input: &str) -> Result<(Pos, Pos)> {
     let (line1, line2) = input.split_once('\n')
         .ok_or_else(|| anyhow!("Input has only one line: {:?}", input))?;
@@ -33,7 +34,7 @@ Player 2 starting position: 8
         .expect("failed to parse sample input")
 }
 
-#[aoc(day21, part1)]
+#[aoc(day21, part1, jimb)]
 fn part1(&(mut pos1, mut pos2): &(Pos, Pos)) -> u32 {
     let mut num_rolls = 0;
 
@@ -84,7 +85,7 @@ struct State {
 /// where *lower* scores precede *higher* scores.
 struct Enqueued(State);
 
-#[aoc(day21, part2)]
+#[aoc(day21, part2, jimb)]
 fn part2(&(pos1, pos2): &(Pos, Pos)) -> u64 {
     let initial = State {
         player: 0,
