@@ -76,7 +76,7 @@ fn test_part1() {
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
 struct State {
-    player: u8,
+    whose_turn: u8,
     pos: [Pos; 2],
     score: [u8; 2],
 }
@@ -88,7 +88,7 @@ struct Enqueued(State);
 #[aoc(day21, part2, jimb)]
 fn part2(&(pos1, pos2): &(Pos, Pos)) -> u64 {
     let initial = State {
-        player: 0,
+        whose_turn: 0,
         pos: [pos1, pos2],
         score: [0, 0],
     };
@@ -134,16 +134,16 @@ fn part2(&(pos1, pos2): &(Pos, Pos)) -> u64 {
         let mut consider = |sum: u8, weight: u64| {
             let ways = ways * weight;
 
-            let player = state.player as usize;
-            let mut next_pos = state.pos[player] + sum;
+            let whose_turn = state.whose_turn as usize;
+            let mut next_pos = state.pos[whose_turn] + sum;
             if next_pos > 10 {
                 next_pos -= 10;
             }
 
             let mut next_state = state.clone();
-            next_state.pos[player] = next_pos;
-            next_state.score[player] += next_pos;
-            next_state.player = player as u8 ^ 1;
+            next_state.pos[whose_turn] = next_pos;
+            next_state.score[whose_turn] += next_pos;
+            next_state.whose_turn = whose_turn as u8 ^ 1;
 
             match reachable_ways.entry(next_state.clone()) {
                 Entry::Occupied(mut entry) => {
