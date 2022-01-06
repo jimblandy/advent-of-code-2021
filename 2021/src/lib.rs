@@ -22,6 +22,7 @@ mod day18_sed;
 mod day18_heap;
 mod day19;
 mod day20;
+mod day21;
 mod day22;
 
 /// Return the Cartesian product of two iterators.
@@ -44,7 +45,10 @@ where
 ///
 /// For example, to generate unordered pairs:
 ///
+///     # use aoc2021::*;
+///     # let n = 10;
 ///     triangular_product(0..n, |i| i+1 .. n)
+///     # ;
 pub fn triangular_product<A, B, F>(a: A, mut make_b: F) -> impl Iterator<Item = (A::Item, B::Item)>
 where
     A: IntoIterator,
