@@ -17,6 +17,8 @@ use std::ops::Add;
 /// - the total length of the final path, as estimated by `neighbors`, is
 ///   non-decreasing.
 ///
+/// The produced edges are represented as [`Edge`] structs.
+///
 /// Given any node `n`, the `neighbors` function must return an iterator over
 /// pairs `(neighbor, weight, estimate)`, where `neighbor` is a node directly
 /// reachable from `n`, `weight` is the cost of the edge from `n` to that

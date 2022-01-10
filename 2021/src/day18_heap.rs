@@ -11,11 +11,15 @@ type Value = u8;
 /// A three-level-deep tree, with pairs nested at most two deep, would have
 /// nodes placed like this in the array:
 ///
+/// ```ignore
+///
 ///     0   1   2   3   4   5   6   7
 ///
 ///             +------root-----+
 ///         +---*---+       +---*---+
 ///         *       *       *       *
+///
+/// ```
 ///
 /// If a node is a constant, then its entire subtree is left empty.
 ///
