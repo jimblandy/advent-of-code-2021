@@ -82,6 +82,8 @@ macro_rules! log {
 //     - Since w is in 1..=9 and a1 is in 2..=11 for these rounds, w + a1 is in
 //       3..=20, so the stack definitely becomes non-empty, with a non-zero top.
 //
+// Working through a few rounds by hand:
+//
 // In discussing a particular round, let `z[i]` be the value of `z` upon entry
 // to round `i`, and by extension, let `z[14]` be the value of `z` upon exit
 // from the last round (round 13). If the model number is valid, both `z[0]` and
