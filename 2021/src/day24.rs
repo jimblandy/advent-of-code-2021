@@ -138,7 +138,21 @@ static PART1_INPUT: Problem = &[
 ];
 
 
-/// Given a solution from `next_round` backwards, search for the earlier rounds.
+/// Given a solution from `next_round` forwards, find the constraints necessary to pass earlier rounds.
+///
+/// This uses recursive backtracking to find all sets of constraints that ensure
+/// a valid model number. When we find a set of executions that validate the
+/// model number, we pass its constraints to `report`.
+///
+/// At each recursive call, the contents of `xs[next_round..]` and
+/// `zs[next_round..]` are valid. Earlier elements are dead.
+///
+/// Each `xs[i]` is the value `x` must have in round `i`.
+///
+/// Each `zs[i]` is a `Vec<BitSet>`, representing the constraints on the "stack"
+/// represented by `z` upon entry to round `i`. If you write `z` in base 26,
+/// then the `d`'th digit must be present in the `d`'th `BitSet` in the vector.
+/// The length of the vector must match the number of base-26 digits in `z`.
 fn solve_back(next_round: usize, xs: &mut [i64], zs: &mut [Vec<BitSet>], rounds: Problem, report: &mut impl FnMut(&[i64], &[Vec<BitSet>])) {
     if next_round == 0 {
         report(xs, zs);
