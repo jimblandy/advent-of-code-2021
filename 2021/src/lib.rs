@@ -26,6 +26,7 @@ mod day21;
 mod day22;
 mod day23;
 mod day23_part2;
+mod day24;
 
 /// Return the Cartesian product of two iterators.
 ///
