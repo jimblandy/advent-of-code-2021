@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 use aoc_runner_derive::{aoc, aoc_generator};
 use anyhow::Result;
-use std::{cmp, fmt};
+use std::{cmp, fmt, ops};
 use std::ops::RangeInclusive;
 
 macro_rules! log {
@@ -120,7 +120,8 @@ struct Round {
 
 type Problem = &'static [Round];
 
-static PART1_INPUT: Problem = &[
+#[allow(dead_code)]
+static PART1_INPUT_JIM: Problem = &[
     Round { a0:  10, a1:  2 }, // 0
     Round { a0:  10, a1:  4 }, // 1
     Round { a0:  14, a1:  8 }, // 2
@@ -137,6 +138,22 @@ static PART1_INPUT: Problem = &[
     Round { a0: - 2, a1: 11 }, // 13
 ];
 
+static PART1_INPUT_ERIK: Problem = &[
+    Round { a0: 12 , a1: 6  }, // 0
+    Round { a0: 10 , a1: 6  }, // 1
+    Round { a0: 13 , a1: 3  }, // 2
+    Round { a0: -11, a1: 11 }, // 3
+    Round { a0: 13 , a1: 9  }, // 4
+    Round { a0: -1 , a1: 3  }, // 5
+    Round { a0: 10 , a1: 13 }, // 6
+    Round { a0: 11 , a1: 6  }, // 7
+    Round { a0: 0  , a1: 14 }, // 8
+    Round { a0: 10 , a1: 10 }, // 9
+    Round { a0: -5 , a1: 12 }, // 10
+    Round { a0: -16, a1: 10 }, // 11
+    Round { a0: -7 , a1: 11 }, // 12
+    Round { a0: -11, a1: 15 }, // 13
+];
 
 /// Given a solution from `next_round` forwards, find the constraints necessary to pass earlier rounds.
 ///
@@ -153,10 +170,9 @@ static PART1_INPUT: Problem = &[
 /// represented by `z` upon entry to round `i`. If you write `z` in base 26,
 /// then the `d`'th digit must be present in the `d`'th `BitSet` in the vector.
 /// The length of the vector must match the number of base-26 digits in `z`.
-fn solve_back(next_round: usize, xs: &mut [i64], zs: &mut [Vec<BitSet>], rounds: Problem, report: &mut impl FnMut(&[i64], &[Vec<BitSet>])) {
+fn solve_back(next_round: usize, xs: &mut [i64], zs: &mut [Vec<BitSet>], rounds: Problem, report: &mut impl FnMut(&[i64], &[Vec<BitSet>]) -> ops::ControlFlow<i64, ()>) -> ops::ControlFlow<i64, ()> {
     if next_round == 0 {
-        report(xs, zs);
-        return;
+        return report(xs, zs);
     }
 
     let round = next_round - 1;
@@ -176,12 +192,12 @@ fn solve_back(next_round: usize, xs: &mut [i64], zs: &mut [Vec<BitSet>], rounds:
                 if !set.overlaps(1 + a1 ..= 9 + a1) {
                     log!("{}FAIL: outbound top of stack cannot accommodate anything in {}",
                              indent, BitSet::from(1 + a1 ..= 9 + a1));
-                    return;
+                    return ops::ControlFlow::Continue(());
                 }
             }
             None => {
                 log!("{}FAIL: outbound stack must be empty", indent);
-                return;
+                return ops::ControlFlow::Continue(());
             }
         }
 
@@ -192,7 +208,7 @@ fn solve_back(next_round: usize, xs: &mut [i64], zs: &mut [Vec<BitSet>], rounds:
         zs[round] = zs[next_round].clone();
         zs[round].pop();
 
-        solve_back(round, xs, zs, rounds, report);
+        solve_back(round, xs, zs, rounds, report)?;
     } else if a0 <= 0 {
         // Could x be zero? That would mean that input == top() + a0, and we pop
         // the stack. No possible outgoing stack rules this out.
@@ -207,7 +223,7 @@ fn solve_back(next_round: usize, xs: &mut [i64], zs: &mut [Vec<BitSet>], rounds:
             zs[round] = zs[next_round].clone();
             zs[round].push(BitSet::from(1 - a0 ..= 9 - a0));
 
-            solve_back(round, xs, zs, rounds, report);
+            solve_back(round, xs, zs, rounds, report)?;
         }
 
         // Could x be one? That would mean that input != top() + a0, and we
@@ -234,12 +250,14 @@ fn solve_back(next_round: usize, xs: &mut [i64], zs: &mut [Vec<BitSet>], rounds:
                 zs[round] = zs[next_round].clone();
                 *zs[round].last_mut().unwrap() = BitSet::from(0..=25);
 
-                solve_back(round, xs, zs, rounds, report);
+                solve_back(round, xs, zs, rounds, report)?;
             }
         }
     } else {
         unreachable!()
     }
+
+    ops::ControlFlow::Continue(())
 }
 
 /// Find the largest/smallest valid model number, Given values of `x` and constraints on
@@ -295,33 +313,35 @@ fn solve_forward(largest: bool, xs: &[i64], zs: &[Vec<BitSet>], rounds: Problem)
 #[aoc_generator(day24, part1, jimb)]
 #[aoc_generator(day24, part2, jimb)]
 fn generate(_input: &str) -> Problem {
-    PART1_INPUT
+    PART1_INPUT_ERIK
 }
 
 #[aoc(day24, part1, jimb)]
-fn part1(rounds: Problem) -> usize {
+fn part1(rounds: Problem) -> i64 {
     let mut xs = vec![0; rounds.len()];
     let mut zs = vec![vec![]; rounds.len() + 1];
-    solve_back(14, &mut xs, &mut zs, rounds, &mut |xs, zs| {
-        println!("Solution:");
+    let answer = solve_back(14, &mut xs, &mut zs, rounds, &mut |xs, zs| {
         let input = solve_forward(true, xs, zs, rounds);
-        println!("    Highest valid model number: {}",
-                 input.iter().map(|&n| char::from_digit(n as u32, 10).unwrap()).collect::<String>());
+        ops::ControlFlow::Break(input.iter().fold(0, |n, d| n * 10 + d))
     });
-    0
+    match answer {
+        ops::ControlFlow::Continue(()) => panic!("no solution found"),
+        ops::ControlFlow::Break(n) => n
+    }
 }
 
 #[aoc(day24, part2, jimb)]
-fn part2(rounds: Problem) -> usize {
+fn part2(rounds: Problem) -> i64 {
     let mut xs = vec![0; rounds.len()];
     let mut zs = vec![vec![]; rounds.len() + 1];
-    solve_back(14, &mut xs, &mut zs, rounds, &mut |xs, zs| {
-        println!("Solution:");
+    let answer = solve_back(14, &mut xs, &mut zs, rounds, &mut |xs, zs| {
         let input = solve_forward(false, xs, zs, rounds);
-        println!("    Lowest valid model number: {}",
-                 input.iter().map(|&n| char::from_digit(n as u32, 10).unwrap()).collect::<String>());
+        ops::ControlFlow::Break(input.iter().fold(0, |n, d| n * 10 + d))
     });
-    0
+    match answer {
+        ops::ControlFlow::Continue(()) => panic!("no solution found"),
+        ops::ControlFlow::Break(n) => n
+    }
 }
 
 /// A set of numbers in the range 0..26.
