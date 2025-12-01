@@ -1,0 +1,28 @@
+(defconst moves '(
+(L 68)
+(L 30)
+(R 48)
+(L 5)
+(R 60)
+(L 55)
+(L 1)
+(L 99)
+(R 14)
+(L 82)))
+
+(let ((moves moves)
+      (dial 50)
+      (count 0))
+  (while moves
+    (let* ((move (car moves))
+           (distance (cadr move)))
+      (cond
+       ((eq (car move) 'L)
+        (cl-incf count (/ (+ (if (zerop dial) 0 (- 100 dial)) distance) 100))
+        (setq dial (mod (- dial distance) 100)))
+       ((eq (car move) 'R)
+        (cl-incf count (/ (+ dial distance) 100))
+        (setq dial (mod (+ dial distance) 100))))
+      (message "%s %s %s" move dial count)
+      (setq moves (cdr moves))))
+  count)
