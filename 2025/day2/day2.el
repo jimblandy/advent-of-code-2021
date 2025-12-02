@@ -34,7 +34,7 @@
   (* f (/ (+ n (1- f)) f)))
 
 (defun least-multiple-in-range (f range)
-  "The smallest multiple of `f` that falls within `range', or `nil'."
+  "The smallest integer `n' such that `n * f` falls within `range', or `nil'."
   (let ((first (next-multiple f (car range))))
     (when (<= first (cadr range))
       (/ first f))))
@@ -48,7 +48,7 @@
   (* f (/ n f)))
 
 (defun greatest-multiple-in-range (f range)
-  "The largest multiple of `f` that falls within `range', or `nil'."
+  "The largest integer `n' such that `n * f` falls within `range', or `nil'."
   (let ((last (prev-multiple f (cadr range))))
     (when (<= (car range) last)
       (/ last f))))
