@@ -1,4 +1,5 @@
 (require 'ert)
+(require 'dash)
 
 (defconst part1-test-input '(
 (11 22)
@@ -69,20 +70,33 @@
   (should (equal (intersect-ranges '(2 3) '(1 4)) '(2 3)))
   (should (equal (intersect-ranges '(1 3) '(2 4)) '(2 3))))
 
-(defun power-dup (power) (1+ (* 10 power)))
+(defun power-dup (power ones)
+  (let ((dup 0))
+    (while (> ones 0)
+      (setq dup (1+ (* dup power))
+            ones (1- ones)))
+    dup))
 
+(ert-deftest test-power-dup ()
+  (should (equal (power-dup 10 1) 1))
+  (should (equal (power-dup 10 2) 11))
+  (should (equal (power-dup 10 3) 111))
+  (should (equal (power-dup 100 1) 1))
+  (should (equal (power-dup 100 2) 101))
+  (should (equal (power-dup 100 3) 10101)))
+  
 (defun power-dup-range (power dup)
-  (let ((high (1- (* 10 power))))
-    (list (* power dup) (* high dup))))
+  (let ((low (/ power 10))
+        (high (1- power)))
+    (list (* low dup) (* high dup))))
 
 (ert-deftest test-power-invalid-range ()
-  (should (equal (power-dup-range 1 11) '(11 99)))
-  (should (equal (power-dup-range 10 101) '(1010 9999)))
-  (should (equal (power-dup-range 100 1001) '(100100 999999))))
+  (should (equal (power-dup-range 10 11) '(11 99)))
+  (should (equal (power-dup-range 100 101) '(1010 9999)))
+  (should (equal (power-dup-range 1000 1001) '(100100 999999))))
 
-(defun sum-of-invalid-ids-in-range-for-power (power range)
-  (let* ((dup (power-dup power))
-         (invalid-range (power-dup-range power dup)))
+(defun sum-of-invalid-ids-in-range-for-power (power dup range)
+  (let* ((invalid-range (power-dup-range power dup)))
     (if-let ((range (intersect-ranges invalid-range range))
              (least (least-multiple-in-range dup range))
              (greatest (greatest-multiple-in-range dup range)))
@@ -90,32 +104,32 @@
       0)))
 
 (ert-deftest test-sum-of-invalid-ids-in-range-for-power ()
-  (should (equal (sum-of-invalid-ids-in-range-for-power 1 '(1 1)) 0))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 1 '(10 10)) 0))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 1 '(11 11)) 11))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 1 '(11 22)) 33))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 1 '(22 44)) 99))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 1 '(22 99)) 484))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 1 '(22 1000)) 484))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 100 '(1 1)) 0))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 100 '(100100 100100)) 100100))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 100 '(100100 101101)) 201201))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 100 '(100100 200200)) 15165150))
-  (should (equal (sum-of-invalid-ids-in-range-for-power 100 '(100000 200299)) 15165150)))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 10 11 '(1 1)) 0))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 10 11 '(10 10)) 0))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 10 11 '(11 11)) 11))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 10 11 '(11 22)) 33))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 10 11 '(22 44)) 99))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 10 11 '(22 99)) 484))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 10 11 '(22 1000)) 484))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 1000 1001 '(1 1)) 0))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 1000 1001 '(100100 100100)) 100100))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 1000 1001 '(100100 101101)) 201201))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 1000 1001 '(100100 200200)) 15165150))
+  (should (equal (sum-of-invalid-ids-in-range-for-power 1000 1001 '(100000 200299)) 15165150)))
 
 (defun range-fully-before (left right)
   (< (cadr left) (car right)))
 
 (defun sum-of-invalid-ids-for-range (range)
-  (let ((power 1)
-        (sum 0)
+  (let ((sum 0)
+        (power 10)
         dup
         dup-range)
     (while (progn
-             (setq dup (power-dup power)
+             (setq dup (power-dup power 2)
                    dup-range (power-dup-range power dup))
              (not (range-fully-before range dup-range)))
-      (cl-incf sum (sum-of-invalid-ids-in-range-for-power power range))
+      (cl-incf sum (sum-of-invalid-ids-in-range-for-power power dup range))
       (setq power (* 10 power)))
     sum))
 
@@ -142,3 +156,138 @@
 
 (sum-of-invalid-ids part1-test-input) ; 1227775554
 (sum-of-invalid-ids part1-input) 40398804950
+
+(defun enumerate-inclusive (first last)
+  (when (>= last first)
+    (-iota (1+ (- last first)) first)))
+
+(defun multiple-of-p (big little)
+  (zerop (mod big little)))
+
+(defun strict-divisors (n)
+  (--filter (multiple-of-p n it) (enumerate-inclusive 1 (/ n 2))))
+
+(defun sum-for-group-size (range total-digits group-size)
+  (if (multiple-of-p total-digits group-size)
+      (let* ((num-groups (/ total-digits group-size))
+             (power (expt 10 group-size))
+             (dup (power-dup power num-groups))
+             (dup-range (power-dup-range power dup)))
+        (sum-of-invalid-ids-in-range-for-power power dup range))
+      0))
+
+(ert-deftest test-sum-for-group-size ()
+  (should (equal (sum-for-group-size '(11 22) 2 1) 33))
+  (should (equal (sum-for-group-size '(95 115) 2 1) 99))
+  (should (equal (sum-for-group-size '(95 115) 3 1) 111))
+  (should (equal (sum-for-group-size '(95 115) 3 2) 0)))
+
+;; Return a list whose i'th element is the number of invalid ids in `range`
+;; with a group size of i+1 digits. That is, element zero is the sum for
+;; one-digit groups, element one the sum for two-digit groups, and so on.
+(defun sums-for-group-sizes (range total-digits)
+  (-map (-partial #'sum-for-group-size range total-digits)
+        (-iota (/ total-digits 2) 1)))
+
+(ert-deftest test-sums-for-group-sizes ()
+  (should (equal (sums-for-group-sizes '(11 22) 2) '(33)))
+  (should (equal (sums-for-group-sizes '(95 115) 2) '(99)))
+  (should (equal (sums-for-group-sizes '(95 115) 3) '(111)))
+  (should (equal (sums-for-group-sizes '(998 1012) 2) '(0)))
+  (should (equal (sums-for-group-sizes '(998 1012) 3) '(999)))
+  (should (equal (sums-for-group-sizes '(998 1012) 4) '(0 1010)))
+
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 2) '(0)))
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 3) '(0)))
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 4) '(0 0)))
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 5) '(0 0)))
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 6) '(0 0 0)))
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 7) '(0 0 0)))
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 8) '(0 0 0 0)))
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 9) '(0 0 0 0)))
+  (should (equal (sums-for-group-sizes '(1188511880 1188511890) 10) '(0 0 0 0 1188511885)))
+
+  (should (equal (sums-for-group-sizes '(222220 222224) 6) '(222222 222222 222222)))
+
+  (should (equal (sums-for-group-sizes '(1698522 1698528) 8) '(0 0 0 0)))
+
+  (should (equal (sums-for-group-sizes '(446443 446449) 6) '(0 0 446446)))
+  (should (equal (sums-for-group-sizes '(38593856 38593862) 8) '(0 0 0 38593859)))
+  (should (equal (sums-for-group-sizes '(565653 565659) 6) '(0 565656 0)))
+  (should (equal (sums-for-group-sizes '(824824821 824824827) 9) '(0 0 824824824 0)))
+  (should (equal (sums-for-group-sizes '(2121212118 2121212124) 10) '(0 2121212121 0 0 0))))
+
+;;; Sum a list of numbers, but for every non-zero x_i, subtract all
+;;; x_j where j strictly divides i. Treat the first element of the
+;;; list as having index 1.
+;;;
+;;; For example, given (5 10 0 40):
+;;;
+;;; - Element 4 is 40. 4 is divisible by 2 and 1, so contribute (- 40 10 5) = 25 to the sum.
+;;; - Element 3 is 0. 3 is divisible by 1, but since the value is zero, don't worry about
+;;;   its divisor elements.
+;;; - Element 2 is 10. 2 is divisible by 1, so contribute (- 10 5) = 5 to the sum.
+;;; - Element 1 is 5, which has no strict divisors, so contribute 5 to the sum.
+;;;
+;;; Thus the sum omitting factors of this list would be (+ 25 15 5 5) = 50.
+(defun sum-omitting-factors-of-nonzeros (nums)
+  (-sum
+   (-map-indexed (lambda (index n)
+                   (if (zerop n) 0
+                     (let* ((factors (strict-divisors (1+ index)))
+                            (values-at-factors (--map (nth (1- it) nums) factors)))
+                       (- n (-sum values-at-factors)))))
+                 nums)))
+
+(ert-deftest test-sum-omitting-factors-of-nonzeros ()
+  (should (equal (sum-omitting-factors-of-nonzeros '(5 10 20 40)) 50))
+  (should (equal (sum-omitting-factors-of-nonzeros '(0 2121212121 0 0 0)) 2121212121)))
+
+(defun distinct-sum-for-range (range total-digits)
+  (sum-omitting-factors-of-nonzeros (sums-for-group-sizes range total-digits)))
+
+(ert-deftest test-distinct-sum-for-range ()
+  (should (equal (distinct-sum-for-range '(11 22) 2) 33))
+  (should (equal (distinct-sum-for-range '(95 115) 2) 99))
+  (should (equal (distinct-sum-for-range '(95 115) 3) 111))
+  (should (equal (distinct-sum-for-range '(998 1012) 3) 999))
+  (should (equal (distinct-sum-for-range '(998 1012) 4) 1010))
+  (should (equal (distinct-sum-for-range '(1188511880 1188511890) 10) 1188511885))
+  (should (equal (distinct-sum-for-range '(222220 222224) 6) 222222))
+  (should (equal (distinct-sum-for-range '(1698522 1698528) 7) 0))
+  (should (equal (distinct-sum-for-range '(446443 446449) 6) 446446))
+  (should (equal (distinct-sum-for-range '(38593856 38593862) 8) 38593859))
+  (should (equal (distinct-sum-for-range '(565653 565659) 6) 565656))
+  (should (equal (distinct-sum-for-range '(824824821 824824827) 9) 824824824))
+  (should (equal (distinct-sum-for-range '(2121212118 2121212124) 10) 2121212121)))
+
+(defun count-digits (n)
+  (cl-do ((digits 1 (1+ digits))
+          (pow 10 (* pow 10)))
+      ((> pow n) digits)))
+
+(defun part2-sum-of-invalid-ids-for-range (range)
+  (let* ((min-digits (count-digits (car range)))
+         (max-digits (count-digits (cadr range)))
+         (lengths (enumerate-inclusive min-digits max-digits)))
+    (-sum (--map (distinct-sum-for-range range it) lengths))))
+    
+(ert-deftest test-part2-sum-of-invalid-ids-for-range ()
+  (should (equal (part2-sum-of-invalid-ids-for-range '(11 22)) 33))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(95 115)) 210))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(998 1012)) 2009))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(1188511880 1188511890)) 1188511885))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(222220 222224)) 222222))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(1698522 1698528)) 0))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(446443 446449)) 446446))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(38593856 38593862)) 38593859))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(565653 565659)) 565656))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(824824821 824824827)) 824824824))
+  (should (equal (part2-sum-of-invalid-ids-for-range '(2121212118 2121212124)) 2121212121)))
+
+(defun part2-sum-of-invalid-ids (ranges)
+  (-sum (--map (part2-sum-of-invalid-ids-for-range it) ranges)))
+
+(ert-deftest test-part2 ()
+  (should (equal (part2-sum-of-invalid-ids part1-test-input) 4174379265))
+  (should (equal (part2-sum-of-invalid-ids part1-input) 65794984339)))
