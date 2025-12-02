@@ -18,17 +18,6 @@
 ;;;; A range is a list of two integers `(start end)', representing all
 ;;;; integers `i' such that `start <= i <= end'.
 
-(defun multiples-in-range (n range)
-  "The number of multiples of `n' that occur in `range'."
-  (- (/ (cadr range) n) (/ (1- (car range)) n)))
-
-(ert-deftest test-multiples-in-range ()
-  "Test multiples-in-range"
-  (should (equal (multiples-in-range 10 '(10 20)) 2))
-  (should (equal (multiples-in-range 11 '(10 10)) 0))
-  (should (equal (multiples-in-range 11 '(10 23)) 2))
-  (should (equal (multiples-in-range 11 '(12 21)) 0)))
-
 (defun next-multiple (f n)
   "The least multiple of `f' greater than or equal to `n'."
   (* f (/ (+ n (1- f)) f)))
