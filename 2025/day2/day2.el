@@ -334,7 +334,7 @@ Thus the sum omitting factors of this list would be (+ 25 0 5 5) = 35."
 
 (defun part2-sum-of-invalid-ids (ranges)
   "Day 2 Part 2."
-  (-sum (--map (part2-sum-of-invalid-ids-for-range it) ranges)))
+  (-sum (-map #'part2-sum-of-invalid-ids-for-range ranges)))
 
 (ert-deftest test-part2 ()
   (should (equal (part2-sum-of-invalid-ids part1-test-input) 4174379265))
