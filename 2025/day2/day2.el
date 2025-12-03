@@ -262,7 +262,19 @@ For example, given (5 10 0 40):
 - Element 2 is 10. 2 is divisible by 1, so contribute (- 10 5) = 5 to the sum.
 - Element 1 is 5, which has no strict divisors, so contribute 5 to the sum.
 
-Thus the sum omitting factors of this list would be (+ 25 0 5 5) = 35."
+Thus the sum omitting factors of this list would be (+ 25 0 5 5) = 35.
+
+What does this get used for in the solution?
+
+The problem is that, if you are dealing with eight-digit numbers, say,
+then all of your four-groups-of-two matches are also going to get
+counted as as two-groups-of-four. And if you have any
+eight-groups-of-one matches, then those are included in all the other
+counts. So you have to remove the doubly-counted ids from each bucket.
+
+But if you are matching six-digit numbers, then your groups-of-two
+matches do not appear in your groups-of-four matches (of which there
+should be none). Hence the 'non-zero' rule."
   (-sum
    (-map-indexed (lambda (index n)
                    (if (zerop n) 0
