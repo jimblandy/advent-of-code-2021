@@ -1,6 +1,4 @@
-#![allow(unused_variables, dead_code)]
-
-use std::borrow::Cow;
+use std::{borrow::Cow, ops};
 
 mod input;
 
@@ -11,6 +9,7 @@ struct Problem<'a> {
     height: isize,
 }
 
+#[cfg(test)]
 static SAMPLE_INPUT_MAP: &[u8] = b"\
 ..@@.@@@@.\
 @@@.@.@.@@\
@@ -24,6 +23,7 @@ static SAMPLE_INPUT_MAP: &[u8] = b"\
 @.@.@@@.@.\
 ";
 
+#[cfg(test)]
 static SAMPLE_INPUT: Problem = Problem {
     map: Cow::Borrowed(SAMPLE_INPUT_MAP),
     width: 10,
@@ -31,38 +31,44 @@ static SAMPLE_INPUT: Problem = Problem {
 };
 
 impl Problem<'_> {
-    fn get(&self, x: isize, y: isize) -> u8 {
-        if 0 <= x && x < self.width && 0 <= y && y < self.height {
-            *self.map.get((y * self.width + x) as usize).unwrap()
-        } else {
-            b'.'
-        }
-    }
-
-    fn get_mut(&mut self, x: isize, y: isize) -> &mut u8 {
-        if 0 <= x && x < self.width && 0 <= y && y < self.height {
-            self.map.to_mut().get_mut((y * self.width + x) as usize).unwrap()
-        } else {
-            panic!("Problem coords out of range: {:?}", (x, y));
-        }
-    }
-
     fn coords(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
         (0..self.width).flat_map(|x| (0..self.height).map(move |y| (x, y)))
     }
 
     fn rolls(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
-        self.coords().filter(|&(x, y)| self.get(x, y) == b'@')
+        self.coords().filter(|&(x, y)| self[(x, y)] == b'@')
     }
 
     fn movable(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
         self.rolls()
             .filter(|&(x, y)| {
                 offsets()
-                    .filter(|&(dx, dy)| self.get(x + dx, y + dy) == b'@')
+                    .filter(|&(dx, dy)| self[(x + dx, y + dy)] == b'@')
                     .count()
                     < 4
             })
+    }
+}
+
+impl ops::Index<(isize, isize)> for Problem<'_> {
+    type Output = u8;
+
+    fn index(&self, (x, y): (isize, isize)) -> &Self::Output {
+        if 0 <= x && x < self.width && 0 <= y && y < self.height {
+            self.map.get((y * self.width + x) as usize).unwrap()
+        } else {
+            &b'.'
+        }
+    }
+}
+
+impl ops::IndexMut<(isize, isize)> for Problem<'_> {
+    fn index_mut(&mut self, (x, y): (isize, isize)) -> &mut Self::Output {
+        if 0 <= x && x < self.width && 0 <= y && y < self.height {
+            self.map.to_mut().get_mut((y * self.width + x) as usize).unwrap()
+        } else {
+            panic!("Problem coords out of range: {:?}", (x, y));
+        }
     }
 }
 
@@ -90,7 +96,7 @@ fn remove(input: &Problem<'_>, output: &mut Problem<'_>) -> usize {
 
     output.map.to_mut().copy_from_slice(&*input.map);
     for (x, y) in input.movable() {
-        *output.get_mut(x, y) = b'.';
+        output[(x, y)] = b'.';
         removed += 1;
     }
 
@@ -116,6 +122,7 @@ fn part2(problem: &Problem<'_>) -> usize {
 #[test]
 fn test_part2() {
     assert_eq!(part2(&SAMPLE_INPUT), 43);
+    assert_eq!(part2(&input::INPUT), 9086);
 }
 
 
