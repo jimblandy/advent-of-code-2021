@@ -45,8 +45,14 @@ fn part1(input: &Problem) -> usize {
     input.available.iter().filter(|&&item| in_ranges(&input.fresh, item)).count()
 }
 
-fn part2(input: &Problem) -> u64 {
-    todo!()
+fn checked_range_len(range: &RangeInclusive<usize>) -> usize {
+    (range.end() - range.start()).checked_add(1).unwrap()
+}
+
+fn part2(input: &Problem) -> usize {
+    let mut input = input.clone();
+    simplify_ranges(&mut input.fresh);
+    input.fresh.iter().map(checked_range_len).sum()
 }
 
 #[test]
@@ -55,8 +61,11 @@ fn test_part1() {
 }
 
 #[test]
-fn test_part2() {}
+fn test_part2() {
+    assert_eq!(part2(&TEST_INPUT), 14);
+}
 
 fn main() {
     println!("part 1: {}", part1(&input::INPUT));
+    println!("part 2: {}", part2(&input::INPUT));
 }
