@@ -9,47 +9,6 @@ struct Problem<'a> {
     height: isize,
 }
 
-#[cfg(test)]
-static SAMPLE_INPUT_MAP: &[u8] = b"\
-..@@.@@@@.\
-@@@.@.@.@@\
-@@@@@.@.@@\
-@.@@@@..@.\
-@@.@@@@.@@\
-.@@@@@@@.@\
-.@.@.@.@@@\
-@.@@@.@@@@\
-.@@@@@@@@.\
-@.@.@@@.@.\
-";
-
-#[cfg(test)]
-static SAMPLE_INPUT: Problem = Problem {
-    map: Cow::Borrowed(SAMPLE_INPUT_MAP),
-    width: 10,
-    height: 10,
-};
-
-impl Problem<'_> {
-    fn coords(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
-        (0..self.width).flat_map(|x| (0..self.height).map(move |y| (x, y)))
-    }
-
-    fn rolls(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
-        self.coords().filter(|&(x, y)| self[(x, y)] == b'@')
-    }
-
-    fn movable(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
-        self.rolls()
-            .filter(|&(x, y)| {
-                offsets()
-                    .filter(|&(dx, dy)| self[(x + dx, y + dy)] == b'@')
-                    .count()
-                    < 4
-            })
-    }
-}
-
 impl ops::Index<(isize, isize)> for Problem<'_> {
     type Output = u8;
 
@@ -80,6 +39,47 @@ fn offsets() -> impl Iterator<Item = (isize, isize)> {
         .filter(|&(dx, dy)| dx != 0 || dy != 0)
 }
 
+impl Problem<'_> {
+    fn coords(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
+        (0..self.width).flat_map(|x| (0..self.height).map(move |y| (x, y)))
+    }
+
+    fn rolls(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
+        self.coords().filter(|&(x, y)| self[(x, y)] == b'@')
+    }
+
+    fn movable(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
+        self.rolls()
+            .filter(|&(x, y)| {
+                offsets()
+                    .filter(|&(dx, dy)| self[(x + dx, y + dy)] == b'@')
+                    .count()
+                    < 4
+            })
+    }
+}
+
+#[cfg(test)]
+static SAMPLE_INPUT_MAP: &[u8] = b"\
+..@@.@@@@.\
+@@@.@.@.@@\
+@@@@@.@.@@\
+@.@@@@..@.\
+@@.@@@@.@@\
+.@@@@@@@.@\
+.@.@.@.@@@\
+@.@@@.@@@@\
+.@@@@@@@@.\
+@.@.@@@.@.\
+";
+
+#[cfg(test)]
+static SAMPLE_INPUT: Problem = Problem {
+    map: Cow::Borrowed(SAMPLE_INPUT_MAP),
+    width: 10,
+    height: 10,
+};
+
 fn part1(problem: &Problem<'_>) -> usize {
     problem.movable().count()
 }
@@ -106,8 +106,8 @@ fn remove(input: &Problem<'_>, output: &mut Problem<'_>) -> usize {
 fn part2(problem: &Problem<'_>) -> usize {
     let mut removed = 0;
 
-    let mut temp1 = problem.clone();
-    let mut temp2 = problem.clone();
+    let mut temp1 = Problem::clone(problem);
+    let mut temp2 = Problem::clone(problem);
 
     loop {
         let just_removed = remove(&temp1, &mut temp2);
