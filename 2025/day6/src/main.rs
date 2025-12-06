@@ -41,9 +41,8 @@ fn part1(problem: &Problem) -> u64 {
     problem
         .operations
         .iter()
-        .cloned()
         .enumerate()
-        .map(|(col, op)| {
+        .map(|(col, &op)| {
             let op = char_to_fn(op);
             let first = problem.numbers[0][col];
             problem.numbers[1..]
@@ -70,10 +69,9 @@ fn part2(problem: &str) -> u64 {
     // Scan the operator line, producing column numbers and operator functions.
     let operator_columns = operators
         .iter()
-        .cloned()
         .enumerate()
-        .filter(|&(_column, op)| op != ' ')
-        .map(|(column, op)| (column, char_to_fn(op)));
+        .filter(|&(_column, &op)| op != ' ')
+        .map(|(column, &op)| (column, char_to_fn(op)));
 
     // Produce the results for each column.
     let column_results = operator_columns
@@ -83,8 +81,8 @@ fn part2(problem: &str) -> u64 {
             let operands =
                 (op_column..)
                 .map(|column| {
-                    // Produce the characters in `column`, substituting spaces
-                    // if we go off the end of the line.
+                    // Produce the characters in `column` from all rows,
+                    // substituting spaces if we go off the end of a line.
                     let column_chars = numbers
                         .iter()
                         .map(|row| row.get(column).cloned().unwrap_or(' '));
