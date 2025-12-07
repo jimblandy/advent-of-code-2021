@@ -82,13 +82,31 @@ fn test_part1() {
 }
 
 fn part2(problem: &Problem) -> usize {
-    todo!()
+    let mut next = Vec::with_capacity(problem.width);
+
+    let mut current = vec![0; problem.width];
+    current[problem.start] = 1;
+
+    for row in &problem.rows {
+        next.clone_from(&current);
+        for &splitter in &row.splitters {
+            let here = current[splitter];
+            next[splitter - 1] += here;
+            next[splitter] = 0;
+            next[splitter + 1] += here;
+        }
+        mem::swap(&mut current, &mut next);
+    }
+
+    current.iter().sum()
 }
 
 #[test]
-fn test_part2() {}
+fn test_part2() {
+    assert_eq!(part2(&TEST_INPUT), 40);
+}
 
 fn main() {
     println!("part 1: {}", part1(&Problem::parse(include_str!("input.txt"))));
-    //part2(&input::INPUT);
+    println!("part 2: {}", part2(&Problem::parse(include_str!("input.txt"))));
 }
