@@ -15,8 +15,12 @@ impl Edge {
         }
     }
 
-    pub fn to(&self) -> usize { self.to }
-    pub fn from(&self) -> usize { self.from }
+    pub fn to(&self) -> usize {
+        self.to
+    }
+    pub fn from(&self) -> usize {
+        self.from
+    }
 }
 
 pub struct Distances {
@@ -72,7 +76,7 @@ impl Distances {
             .flat_map(|to| (0..to).map(move |from| Edge::new(from, to)))
             .collect();
 
-        edges.sort_by(|a, b| -> std::cmp::Ordering { self[*a].cmp(&self[*b]) });
+        edges.sort_by(|&a, &b| -> std::cmp::Ordering { self[a].cmp(&self[b]) });
 
         edges
     }
@@ -92,13 +96,8 @@ fn test_distances() {
 
     assert_eq!(
         d.edges_by_length(),
-        vec![
-            Edge::new(1, 2),
-            Edge::new(0, 1),
-            Edge::new(0, 2),
-        ]
+        vec![Edge::new(1, 2), Edge::new(0, 1), Edge::new(0, 2),]
     );
-               
 }
 
 /// Return the `n''th triangle number.

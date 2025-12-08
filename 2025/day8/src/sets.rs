@@ -14,7 +14,7 @@ pub struct Sets {
 impl Sets {
     pub fn new(n: usize) -> Sets {
         Sets {
-            elements: RefCell::new(vec![Set::End { size: 1 }; n])
+            elements: RefCell::new(vec![Set::End { size: 1 }; n]),
         }
     }
 
@@ -43,7 +43,7 @@ impl Sets {
             .enumerate()
             .filter_map(|(index, set)| match set {
                 Set::Delegate { .. } => None,
-                Set::End { .. } => Some(index)
+                Set::End { .. } => Some(index),
             })
             .collect()
     }

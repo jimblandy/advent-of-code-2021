@@ -20,8 +20,7 @@ impl Problem {
         let boxes = input
             .lines()
             .map(|line| {
-                let mut iter = line.split(',')
-                    .map(|coord| u64::from_str(coord).unwrap());
+                let mut iter = line.split(',').map(|coord| u64::from_str(coord).unwrap());
                 (
                     iter.next().unwrap(),
                     iter.next().unwrap(),
@@ -46,7 +45,11 @@ fn part1(problem: &Problem, num_connections: usize) -> usize {
     clumps.sort_by(|&a, &b| circuits.size(a).cmp(&circuits.size(b)).reverse());
     let end = Instant::now();
     eprintln!("time elapsed: {:?}", end - start);
-    clumps.iter().take(3).map(|&clump| circuits.size(clump)).product()
+    clumps
+        .iter()
+        .take(3)
+        .map(|&clump| circuits.size(clump))
+        .product()
 }
 
 static SAMPLE_INPUT: &str = "\
@@ -101,6 +104,12 @@ fn test_part2() {
 }
 
 fn main() {
-    println!("part 1: {}", part1(&Problem::parse(include_str!("input.txt")), 1000));
-    println!("part 2: {}", part2(&Problem::parse(include_str!("input.txt"))));
+    println!(
+        "part 1: {}",
+        part1(&Problem::parse(include_str!("input.txt")), 1000)
+    );
+    println!(
+        "part 2: {}",
+        part2(&Problem::parse(include_str!("input.txt")))
+    );
 }
