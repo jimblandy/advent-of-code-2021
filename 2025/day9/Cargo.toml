@@ -4,3 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+binary-heap-plus = "0.5"
+compare = "0.1"

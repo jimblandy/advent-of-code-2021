@@ -1,4 +1,19 @@
-type Point = (u64, u64);
+#![allow(dead_code)]
+
+mod bands;
+
+use std::ops::RangeInclusive;
+
+type Point = (u64, u64); // row, col
+type Edge = RangeInclusive<Point>;
+
+fn is_vertical(edge: &Edge) -> bool {
+    edge.start().0 != edge.end().0 && edge.start().1 == edge.end().1
+}
+
+fn is_horizontal(edge: &Edge) -> bool {
+    edge.start().0 == edge.end().0 && edge.start().1 != edge.end().1
+}
 
 struct Problem {
     red: Vec<Point>,
@@ -10,21 +25,31 @@ impl Problem {
             red: input
                 .lines()
                 .map(|line| {
-                    let mut coords = line
-                        .split(',')
-                        .map(|coord| coord.parse().unwrap());
-                    (
-                        coords.next().unwrap(),
-                        coords.next().unwrap(),
-                    )
+                    let mut coords = line.split(',').map(|coord| coord.parse().unwrap());
+                    (coords.next().unwrap(), coords.next().unwrap())
                 })
-                .collect()
+                .collect(),
         }
+    }
+
+    fn edges(&self) -> impl Iterator<Item = Edge> + '_ {
+        let backlink = *self.red.last().unwrap()..=self.red[0];
+        self.red
+            .windows(2)
+            .map(|w| {
+                let &[from, to] = w else { unreachable!() };
+                from..=to
+            })
+            .chain(std::iter::once(backlink))
+            .inspect(|edge| {
+                assert!(is_horizontal(edge) || is_vertical(edge));
+                assert!(edge.start() != edge.end());
+            })
     }
 }
 
 fn area(a: Point, b: Point) -> u64 {
-    use std::cmp::{min, max};
+    use std::cmp::{max, min};
 
     let ul = (min(a.0, b.0), min(a.1, b.1));
     let lr = (max(a.0, b.0), max(a.1, b.1));
@@ -32,7 +57,8 @@ fn area(a: Point, b: Point) -> u64 {
 }
 
 fn part1(problem: &Problem) -> u64 {
-    problem.red
+    problem
+        .red
         .iter()
         .enumerate()
         .flat_map(|(i, &a)| problem.red[..i].iter().map(move |&b| (a, b)))
@@ -42,5 +68,8 @@ fn part1(problem: &Problem) -> u64 {
 }
 
 fn main() {
-    println!("part 1: {}", part1(&Problem::from_str(include_str!("input.txt"))));
+    println!(
+        "part 1: {}",
+        part1(&Problem::from_str(include_str!("input.txt")))
+    );
 }
