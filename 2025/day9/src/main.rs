@@ -1,7 +1,7 @@
-#![allow(dead_code)]
-
 mod bands;
+mod render;
 
+use std::io::Write as _;
 use std::ops::RangeInclusive;
 
 type Point = (u64, u64); // row, col
@@ -67,9 +67,31 @@ fn part1(problem: &Problem) -> u64 {
         .unwrap()
 }
 
-fn main() {
-    println!(
-        "part 1: {}",
-        part1(&Problem::from_str(include_str!("input.txt")))
-    );
+fn main() -> anyhow::Result<()> {
+    env_logger::init();
+
+    let problem = Problem::from_str(include_str!("input.txt"));
+    println!("part 1: {}", part1(&problem));
+    render(&problem, (1000, 1000), 100, "day9.png".as_ref())?;
+    Ok(())
+}
+
+fn render(
+    problem: &Problem,
+    size: (usize, usize),
+    scale: usize,
+    output: &std::path::Path,
+) -> anyhow::Result<()> {
+    let bands = bands::BandIter::from_edges(problem.edges());
+    let mut target = render::RenderTarget::new(size, scale);
+    for band in bands {
+        target.render_band(&band);
+    }
+    let image = target.into_image();
+
+    let stream = std::fs::File::create(output)?;
+    let mut stream = std::io::BufWriter::new(stream);
+    image.write_to(&mut stream, image::ImageFormat::Png)?;
+    stream.flush()?;
+    Ok(())
 }

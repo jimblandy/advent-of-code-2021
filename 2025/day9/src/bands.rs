@@ -14,7 +14,7 @@ We could cope with all these cases, but it makes the code more complicated.
 
 use super::Edge;
 use binary_heap_plus::{BinaryHeap, PeekMut};
-use std::cmp::{self, Ordering, max, min};
+use std::cmp::{Ordering, max, min};
 use std::ops::{Range, RangeInclusive};
 
 /// A range of rows within which the ranges of columns that lie within the shape
@@ -74,7 +74,7 @@ impl compare::Compare<Edge> for EdgeByBottom {
 }
 
 impl BandIter {
-    fn from_edges(edges: impl IntoIterator<Item = Edge>) -> Self {
+    pub fn from_edges(edges: impl IntoIterator<Item = Edge>) -> Self {
         let edges = edges.into_iter();
 
         // Build a vector from the iterator, and assert that
@@ -146,40 +146,15 @@ fn push_run(runs: &mut Vec<Range<u64>>, new_run: Range<u64>) {
     }
 }
 
-#[derive(Eq, PartialEq)]
-enum Orientation {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
-fn orientation(edge: &Edge) -> Orientation {
-    if is_vertical(edge) {
-        match edge.start().0.cmp(&edge.end().0) {
-            Ordering::Less => Orientation::Down,
-            Ordering::Equal => panic!("trivial edge: {edge:?}"),
-            Ordering::Greater => Orientation::Up,
-        }
-    } else {
-        assert!(is_horizontal(edge));
-        match edge.start().1.cmp(&edge.end().1) {
-            Ordering::Less => Orientation::Right,
-            Ordering::Equal => panic!("trivial edge: {edge:?}"),
-            Ordering::Greater => Orientation::Left,
-        }
-    }
-}
-
 impl Iterator for BandIter {
     /// Non-overlapping runs of columns, sorted by column.
     type Item = Band;
 
     fn next(&mut self) -> Option<Band> {
-        eprintln!("BandIter::next:");
-        eprintln!("    next_row:  {:?}", self.next_row);
-        eprintln!("    next:      {:?}", self.next);
-        eprintln!("    unreached: {:?}", self.unreached);
+        log::debug!("BandIter::next:");
+        log::debug!("    next_row:  {:?}", self.next_row);
+        log::debug!("    next:      {:?}", self.next);
+        log::debug!("    unreached: {:?}", self.unreached);
 
         // Since the shape is connected, if `next` is empty, then there are no
         // more bands to produce.
@@ -248,8 +223,7 @@ impl Iterator for BandIter {
 
             by_left.then(by_right).then(by_arrival)
         });
-        eprintln!("sorted edges: {edges:?}");
-        let mut edges = edges.into_iter();
+        log::debug!("sorted edges: {edges:?}");
         let mut runs: Vec<Range<u64>> = vec![];
 
         #[derive(Debug)]
@@ -274,92 +248,126 @@ impl Iterator for BandIter {
 
         // Whether there are any horizontal edges on the `band_top` row where
         // the area below the edge is outside the shape.
+        //
+        // When we draw a bottom edge like that, the edge itself is
+        // included inside the shape, but the next row of floor tiles
+        // is outside, so the band has to end immediately after the
+        // row containing the edge. And since red tiles appear only at
+        // the top of a band, this means the band will contain a
+        // single row.
         let mut includes_bottom_edge = false;
 
         // Process the edges.
-        while let Some(edge) = edges.next() {
-            eprintln!("    considering edge {edge:?}");
-            match (orientation(&edge), state) {
-                (Orientation::Up | Orientation::Down, State::Outside) => {
-                    let dangling = if edge.start().0 == band_top || edge.end().0 == band_top {
-                        Some(edge.clone())
-                    } else {
-                        None
-                    };
-                    state = State::Inside { entry: edge, dangling };
-                }
-                (
-                    Orientation::Up | Orientation::Down,
+        for edge in edges {
+            log::debug!("    considering edge {edge:?}");
+            if is_vertical(&edge) {
+                match state {
+                    State::Outside => {
+                        let dangling = if edge.start().0 == band_top || edge.end().0 == band_top {
+                            Some(edge.clone())
+                        } else {
+                            None
+                        };
+                        state = State::Inside {
+                            entry: edge,
+                            dangling,
+                        };
+                    }
+                    
+                    
                     State::Inside {
                         entry,
                         dangling: None,
-                    },
-                ) => {
-                    // Is this edge just a continuation of the edge we entered at?
-                    if are_connected(&edge, &entry) {
-                        assert!(orientation(&edge) == orientation(&entry));
-                        state = State::Inside {
-                            entry,
-                            dangling: None,
-                        }; // no change
-                    } else if edge.start().0 == band_top || edge.end().0 == band_top {
-                        // We've found a dangling edge. We'll need to see more
-                        // to tell whether we're exiting the shape.
-                        state = State::Inside { entry, dangling: Some(edge) };
-                    } else {
-                        push_run(&mut runs, entry.start().1..edge.start().1 + 1);
-                        state = State::Outside;
                     }
-                }
-                (
-                    Orientation::Up | Orientation::Down,
+                    => {
+                        // Is this edge just a continuation of the edge we entered at?
+                        if are_connected(&edge, &entry) {
+                            assert!(is_vertical(&edge) == is_vertical(&entry));
+                            state = State::Inside {
+                                entry,
+                                dangling: None,
+                            }; // no change
+                        } else if edge.start().0 == band_top || edge.end().0 == band_top {
+                            // We've found a dangling edge. We'll need to see more
+                            // to tell whether we're exiting the shape.
+                            state = State::Inside {
+                                entry,
+                                dangling: Some(edge),
+                            };
+                        } else {
+                            push_run(&mut runs, entry.start().1..edge.start().1 + 1);
+                            state = State::Outside;
+                        }
+                    }
+                    
+                    
                     State::Inside {
                         entry,
                         dangling: Some(dangling),
-                    },
-                ) => {
-                    assert!(are_connected(&edge, &dangling));
-                    if goes_down(&edge) == goes_down(&entry) {
-                        // `edge` just continues the boundary in the same
-                        // direction that `entry` established, but we no longer
-                        // have a horizontal we're extending.
-                        state = State::Inside { entry, dangling: None };
-                    } else {
-                        // We have exited the shape.
-                        push_run(&mut runs, entry.start().1..edge.start().1 + 1);
-                        state = State::Outside;
+                    }
+                    => {
+                        assert!(are_connected(&edge, &dangling));
+                        if goes_down(&edge) == goes_down(&entry) {
+                            // `edge` just continues the boundary in the same
+                            // direction that `entry` established, but we no longer
+                            // have a horizontal we're extending.
+                            state = State::Inside {
+                                entry,
+                                dangling: None,
+                            };
+                        } else {
+                            // We have exited the shape.
+                            push_run(&mut runs, entry.start().1..edge.start().1 + 1);
+                            state = State::Outside;
+                        }
                     }
                 }
-                (Orientation::Left | Orientation::Right, State::Outside) => {
-                    panic!("bare horizontal edge outside: {edge:?}");
-                }
-                (Orientation::Left | Orientation::Right, State::Inside { entry, dangling: None }) => {
-                    panic!("bare horizontal edge inside {entry:?}: {edge:?}");
-                }
-                (Orientation::Left | Orientation::Right, State::Inside { entry, dangling: Some(dangling) }) => {
-                    // This horizontal edge must extend the dangling boundary edge.
-                    assert!(are_connected(&edge, &dangling));
+            } else {
+                match state {
+                     State::Outside => {
+                        panic!("bare horizontal edge outside: {edge:?}");
+                    }
+                    
+                        State::Inside {
+                            entry,
+                            dangling: None,
+                        }
+                     => {
+                        panic!("bare horizontal edge inside {entry:?}: {edge:?}");
+                    }
+                    
+                        State::Inside {
+                            entry,
+                            dangling: Some(dangling),
+                        }
+                     => {
+                        // This horizontal edge must extend the dangling boundary edge.
+                        assert!(are_connected(&edge, &dangling));
 
-                    // Determine whether `edge` is a bottom edge.
-                    if dangling == entry {
-                        // The dangling edge this horizontal edge connects to is the one
-                        // by which we entered the shape. Since this edge is connected to it,
-                        // that entry edge either starts or ends on this row.
-                        if edge_bottom(&dangling) == band_top {
-                            eprintln!("    is a bottom edge");
-                            includes_bottom_edge = true;
+                        // Determine whether `edge` is a bottom edge.
+                        if dangling == entry {
+                            // The dangling edge this horizontal edge connects to is the one
+                            // by which we entered the shape. Since this edge is connected to it,
+                            // that entry edge either starts or ends on this row.
+                            if edge_bottom(&dangling) == band_top {
+                                log::debug!("    is a bottom edge");
+                                includes_bottom_edge = true;
+                            }
+                        } else if is_vertical(&dangling) {
+                            if edge_top(&dangling) == band_top {
+                                log::debug!("    is a bottom edge");
+                                includes_bottom_edge = true;
+                            }
                         }
-                    } else if is_vertical(&dangling) {
-                        if edge_top(&dangling) == band_top {
-                            eprintln!("    is a bottom edge");
-                            includes_bottom_edge = true;
-                        }
+                        state = State::Inside {
+                            entry,
+                            dangling: Some(edge),
+                        };
                     }
-                    state = State::Inside { entry, dangling: Some(edge) };
                 }
             }
 
-            eprintln!("    -> {state:?}");
+            log::debug!("    -> {state:?}");
         }
         assert!(matches!(state, State::Outside));
 
@@ -404,21 +412,8 @@ impl Iterator for BandIter {
     }
 }
 
-fn intersection<T: cmp::Ord + Copy>(a: Range<T>, b: Range<T>) -> Option<Range<T>> {
-    let candidate = max(a.start, b.start)..min(a.end, b.end);
-    (candidate.start < candidate.end).then_some(candidate)
-}
-
 fn is_vertical(e: &Edge) -> bool {
     e.start().1 == e.end().1
-}
-
-fn is_horizontal(e: &Edge) -> bool {
-    e.start().0 == e.end().0
-}
-
-fn goes_up(e: &Edge) -> bool {
-    e.start().0 > e.end().0
 }
 
 fn goes_down(e: &Edge) -> bool {
