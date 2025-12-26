@@ -1,5 +1,6 @@
 mod bands;
 mod render;
+mod ranges_iter;
 
 use std::io::Write as _;
 use std::ops::RangeInclusive;
