@@ -65,7 +65,10 @@ fn main() -> anyhow::Result<()> {
 
     let problem = Problem::from_str(include_str!("input.txt"));
     println!("part 1: {}", part1(&problem));
-    render(&problem, (1000, 1000), 100, "day9.png".as_ref())?;
+
+    let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    path.push("day9.png");
+    render(&problem, (1000, 1000), 100, &path)?;
     println!("part 2: {}", part2::part2(&problem));
     Ok(())
 }
