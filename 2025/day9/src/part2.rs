@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use std::cmp::{max, min};
 use std::ops::Range;
 
@@ -203,7 +201,7 @@ fn collect_rectangles(edges: &[crate::edge::Edge]) -> Vec<crate::edge::Edge> {
 }
 
 #[cfg(test)]
-use crate::{edge::Edge, test_data};
+use crate::test_data;
 
 #[test]
 fn square_simple() {

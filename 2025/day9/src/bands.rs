@@ -360,11 +360,9 @@ impl Iterator for BandIter {
                                 log::debug!("    is a bottom edge");
                                 includes_bottom_edge = true;
                             }
-                        } else if is_vertical(&dangling) {
-                            if edge_top(&dangling) == band_top {
-                                log::debug!("    is a bottom edge");
-                                includes_bottom_edge = true;
-                            }
+                        } else if is_vertical(&dangling) && edge_top(&dangling) == band_top {
+                            log::debug!("    is a bottom edge");
+                            includes_bottom_edge = true;
                         }
                         state = State::Inside {
                             entry,
@@ -380,7 +378,7 @@ impl Iterator for BandIter {
 
         // Drop all edges from `next` that end at the top of this band.
         while let Some(maybe_done) = self.next.peek_mut() {
-            let maybe_done_bottom = edge_bottom(&*maybe_done);
+            let maybe_done_bottom = edge_bottom(&maybe_done);
             assert!(band_top <= maybe_done_bottom);
             if band_top < maybe_done_bottom {
                 break;
@@ -421,6 +419,7 @@ impl Iterator for BandIter {
 
 #[cfg(test)]
 mod test {
+    #![allow(clippy::single_range_in_vec_init)]
     use super::{Band, BandIter};
     use crate::test_data;
 
