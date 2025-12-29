@@ -1,18 +1,26 @@
 /*! An iterator over [Band]s.
 
-We assert that there are no edges that traverse the same squares as other edges.
-This simplifies things:
+A [`Band`] is a range of rows within the image within which:
 
-- The shape cannot be self-intersecting.
+- All rows in the band have the same columns that lie within the
+  shape. It's just a horizontal row of rectangles, with the same top
+  and bottom rows, but with gaps between them.
 
-- A horizontal line through the shape can't exit it and re-enter it in the same
-  square.
+- Red tiles appear only in the top row of the band.
 
-We could cope with all these cases, but it makes the code more complicated.
+Any shape can be decomposed into a series of bands, as long as it is a
+simple polygon with only horizontal and vertical edges.
+
+The [`BandIter`] type is built from a cycle of edges, and produces a
+series of bands in top-to-bottom order.
+
+We assert that the shape meets our restrictions to the extent
+convenient. We could cope with the more general case, but it would
+complicate the code.
 
 */
 
-use super::Edge;
+use crate::edge::*;
 use binary_heap_plus::{BinaryHeap, PeekMut};
 use std::cmp::{Ordering, max, min};
 use std::ops::{Range, RangeInclusive};
@@ -24,10 +32,16 @@ use std::ops::{Range, RangeInclusive};
 #[derive(Debug, Eq, PartialEq)]
 pub struct Band {
     pub rows: RangeInclusive<u64>,
+
+    /// Runs of columns included in the band.
+    ///
+    /// Ranges appear from left to right, are non-overlapping, and do
+    /// not touch.
     pub runs: Vec<Range<u64>>,
 
     /// Columns in the top row of the band where there are red tiles.
     /// Red tiles appear only on the top row of the band.
+    /// Sorted from left to right.
     pub reds: Vec<u64>,
 }
 
@@ -141,6 +155,7 @@ fn push_run(runs: &mut Vec<Range<u64>>, new_run: Range<u64>) {
 
         // Otherwise, extend the prior range to enclose this one.
         Some(last) => {
+            assert!(last.start <= new_run.start);
             last.end = max(last.end, new_run.end);
         }
     }
@@ -273,13 +288,10 @@ impl Iterator for BandIter {
                             dangling,
                         };
                     }
-                    
-                    
                     State::Inside {
                         entry,
                         dangling: None,
-                    }
-                    => {
+                    } => {
                         // Is this edge just a continuation of the edge we entered at?
                         if are_connected(&edge, &entry) {
                             assert!(is_vertical(&edge) == is_vertical(&entry));
@@ -299,13 +311,10 @@ impl Iterator for BandIter {
                             state = State::Outside;
                         }
                     }
-                    
-                    
                     State::Inside {
                         entry,
                         dangling: Some(dangling),
-                    }
-                    => {
+                    } => {
                         assert!(are_connected(&edge, &dangling));
                         if goes_down(&edge) == goes_down(&entry) {
                             // `edge` just continues the boundary in the same
@@ -324,23 +333,21 @@ impl Iterator for BandIter {
                 }
             } else {
                 match state {
-                     State::Outside => {
+                    State::Outside => {
                         panic!("bare horizontal edge outside: {edge:?}");
                     }
-                    
-                        State::Inside {
-                            entry,
-                            dangling: None,
-                        }
-                     => {
+
+                    State::Inside {
+                        entry,
+                        dangling: None,
+                    } => {
                         panic!("bare horizontal edge inside {entry:?}: {edge:?}");
                     }
-                    
-                        State::Inside {
-                            entry,
-                            dangling: Some(dangling),
-                        }
-                     => {
+
+                    State::Inside {
+                        entry,
+                        dangling: Some(dangling),
+                    } => {
                         // This horizontal edge must extend the dangling boundary edge.
                         assert!(are_connected(&edge, &dangling));
 
@@ -412,46 +419,14 @@ impl Iterator for BandIter {
     }
 }
 
-fn is_vertical(e: &Edge) -> bool {
-    e.start().1 == e.end().1
-}
-
-fn goes_down(e: &Edge) -> bool {
-    e.start().0 < e.end().0
-}
-
-fn are_connected(a: &Edge, b: &Edge) -> bool {
-    a.start() == b.end() || b.start() == a.end()
-}
-
-fn edge_top(e: &Edge) -> u64 {
-    min(e.start().0, e.end().0)
-}
-
-fn edge_left(e: &Edge) -> u64 {
-    min(e.start().1, e.end().1)
-}
-
-fn edge_bottom(e: &Edge) -> u64 {
-    max(e.start().0, e.end().0)
-}
-
-fn edge_right(e: &Edge) -> u64 {
-    max(e.start().1, e.end().1)
-}
-
 #[cfg(test)]
 mod test {
+    use crate::test_data;
     use super::{Band, BandIter};
 
     #[test]
     fn square_simple() {
-        let mut bands = BandIter::from_edges([
-            (12, 10)..=(12, 20),
-            (12, 20)..=(22, 20),
-            (22, 20)..=(22, 10),
-            (22, 10)..=(12, 10),
-        ]);
+        let mut bands = BandIter::from_edges(test_data::SQUARE_SIMPLE);
 
         assert_eq!(
             bands.next(),
@@ -474,12 +449,7 @@ mod test {
 
     #[test]
     fn reversed_square() {
-        let mut bands = BandIter::from_edges([
-            (22, 20)..=(12, 20),
-            (12, 20)..=(12, 10),
-            (12, 10)..=(22, 10),
-            (22, 10)..=(22, 20),
-        ]);
+        let mut bands = BandIter::from_edges(test_data::REVERSED_SQUARE);
 
         assert_eq!(
             bands.next(),
@@ -518,7 +488,7 @@ mod test {
 
     #[test]
     fn vertical_line() {
-        let mut bands = BandIter::from_edges([(12, 10)..=(22, 10), (22, 10)..=(12, 10)]);
+        let mut bands = BandIter::from_edges(test_data::VERTICAL_LINE);
 
         assert_eq!(
             bands.next(),
@@ -586,16 +556,7 @@ mod test {
 
     #[test]
     fn u_shape() {
-        let mut bands = BandIter::from_edges([
-            (10, 10)..=(10, 20),
-            (10, 20)..=(20, 20),
-            (20, 20)..=(20, 30),
-            (20, 30)..=(10, 30),
-            (10, 30)..=(10, 40),
-            (10, 40)..=(30, 40),
-            (30, 40)..=(30, 10),
-            (30, 10)..=(10, 10),
-        ]);
+        let mut bands = BandIter::from_edges(test_data::U_SHAPE);
 
         assert_eq!(
             bands.next(),
@@ -626,16 +587,7 @@ mod test {
 
     #[test]
     fn j_shape() {
-        let mut bands = BandIter::from_edges([
-            (10, 10)..=(10, 20),
-            (10, 20)..=(30, 20),
-            (30, 20)..=(30, 30),
-            (30, 30)..=(20, 30),
-            (20, 30)..=(20, 40),
-            (20, 40)..=(40, 40),
-            (40, 40)..=(40, 10),
-            (40, 10)..=(10, 10),
-        ]);
+        let mut bands = BandIter::from_edges(test_data::J_SHAPE);
 
         assert_eq!(
             bands.next(),
@@ -674,16 +626,7 @@ mod test {
 
     #[test]
     fn lower_case_r_shape() {
-        let mut bands = BandIter::from_edges([
-            (10, 10)..=(10, 40),
-            (10, 40)..=(30, 40),
-            (30, 40)..=(30, 30),
-            (30, 30)..=(20, 30),
-            (20, 30)..=(20, 20),
-            (20, 20)..=(40, 20),
-            (40, 20)..=(40, 10),
-            (40, 10)..=(10, 10),
-        ]);
+        let mut bands = BandIter::from_edges(test_data::LOWER_CASE_R_SHAPE);
 
         assert_eq!(
             bands.next(),
@@ -745,16 +688,7 @@ mod test {
     /// midpoint.
     #[test]
     fn square_with_midpoints_clockwise() {
-        let mut bands = BandIter::from_edges([
-            (10, 10)..=(10, 20),
-            (10, 20)..=(10, 30),
-            (10, 30)..=(20, 30),
-            (20, 30)..=(30, 30),
-            (30, 30)..=(30, 20),
-            (30, 20)..=(30, 10),
-            (30, 10)..=(20, 10),
-            (20, 10)..=(10, 10),
-        ]);
+        let mut bands = BandIter::from_edges(test_data::SQUARE_WITH_MIDPOINTS_CLOCKWISE);
 
         assert_eq!(
             bands.next(),
@@ -785,16 +719,7 @@ mod test {
 
     #[test]
     fn square_with_midpoints_counterclockwise() {
-        let mut bands = BandIter::from_edges([
-            (10, 10)..=(20, 10),
-            (20, 10)..=(30, 10),
-            (30, 10)..=(30, 20),
-            (30, 20)..=(30, 30),
-            (30, 30)..=(20, 30),
-            (20, 30)..=(10, 30),
-            (10, 30)..=(10, 20),
-            (10, 20)..=(10, 10),
-        ]);
+        let mut bands = BandIter::from_edges(test_data::SQUARE_WITH_MIDPOINTS_COUNTERCLOCKWISE);
 
         assert_eq!(
             bands.next(),

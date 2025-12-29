@@ -1,19 +1,12 @@
 mod bands;
+mod edge;
+mod part2;
 mod render;
+mod test_data;
+
+use edge::{Edge, Point, is_horizontal, is_vertical};
 
 use std::io::Write as _;
-use std::ops::RangeInclusive;
-
-type Point = (u64, u64); // row, col
-type Edge = RangeInclusive<Point>;
-
-fn is_vertical(edge: &Edge) -> bool {
-    edge.start().0 != edge.end().0 && edge.start().1 == edge.end().1
-}
-
-fn is_horizontal(edge: &Edge) -> bool {
-    edge.start().0 == edge.end().0 && edge.start().1 != edge.end().1
-}
 
 struct Problem {
     red: Vec<Point>,
@@ -73,6 +66,7 @@ fn main() -> anyhow::Result<()> {
     let problem = Problem::from_str(include_str!("input.txt"));
     println!("part 1: {}", part1(&problem));
     render(&problem, (1000, 1000), 100, "day9.png".as_ref())?;
+    println!("part 2: {}", part2::part2(&problem));
     Ok(())
 }
 
