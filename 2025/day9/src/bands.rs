@@ -421,8 +421,8 @@ impl Iterator for BandIter {
 
 #[cfg(test)]
 mod test {
-    use crate::test_data;
     use super::{Band, BandIter};
+    use crate::test_data;
 
     #[test]
     fn square_simple() {

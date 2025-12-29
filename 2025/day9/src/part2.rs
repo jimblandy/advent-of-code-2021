@@ -262,5 +262,5 @@ fn part2_example() {
         red: edges.iter().map(|edge| *edge.start()).collect(),
     };
 
-   assert_eq!(part2(&problem), 24);
+    assert_eq!(part2(&problem), 24);
 }

@@ -1,4 +1,4 @@
-use std::cmp::{min, max};
+use std::cmp::{max, min};
 use std::ops::RangeInclusive;
 
 pub type Point = (u64, u64); // row, col
