@@ -116,11 +116,11 @@ mod formats {
 
 macro_rules! insn {
     ($name:ident : $op:ident $format:ident) => {
-        (stringify!($name), Box::new(formats::$format(ops::$op)))
+        (stringify!($name), &formats::$format(ops::$op))
     };
 }
 
-fn all_semantics() -> Vec<(&'static str, Box<dyn Semantic>)> {
+fn all_semantics() -> Vec<(&'static str, &'static dyn Semantic)> {
     vec![
         insn!(addi: add RI),
         insn!(muli: mul RI),
@@ -142,7 +142,7 @@ fn all_semantics() -> Vec<(&'static str, Box<dyn Semantic>)> {
 }
 
 impl SampleExecution {
-    fn behaves_like(&self, sem: &Box<dyn Semantic>) -> bool {
+    fn behaves_like(&self, sem: &dyn Semantic) -> bool {
         let mut state = self.before.clone();
         sem.step(&self.insn, &mut state);
         state == self.after
@@ -164,7 +164,7 @@ fn main() {
     };
 
     println!("Example step behaves like:");
-    for (name, sem) in &semantics {
+    for &(name, sem) in &semantics {
         if example.behaves_like(sem) {
             println!("    {name}");
         }
@@ -174,7 +174,7 @@ fn main() {
     for (i, execution) in SAMPLE_EXECUTIONS.iter().enumerate() {
         if semantics
             .iter()
-            .filter(|(_name, sem)| execution.behaves_like(sem))
+            .filter(|&&(_name, sem)| execution.behaves_like(sem))
             .count()
             >= 3
         {
@@ -184,7 +184,7 @@ fn main() {
             );
             for name in semantics
                 .iter()
-                .filter(|(_name, sem)| execution.behaves_like(sem))
+                .filter(|&&(_name, sem)| execution.behaves_like(sem))
                 .map(|(name, _sem)| name)
             {
                 println!("    {name}");
@@ -202,7 +202,7 @@ fn main() {
         .map(|(name, sem)| (name, sem, [true; 16]))
         .collect::<Vec<_>>();
     for sample in SAMPLE_EXECUTIONS {
-        for (_name, sem, opcodes) in &mut possible {
+        for &mut (_name, sem, ref mut opcodes) in &mut possible {
             if !sample.behaves_like(sem) {
                 opcodes[sample.insn.opcode as usize] = false;
             }
