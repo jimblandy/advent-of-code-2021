@@ -27,7 +27,7 @@ use std::ops::Add;
 ///
 /// You may use any type you like for edge weights, as long as it can be added,
 /// ordered, and cloned. If all edges have the same weight, it may be simpler to
-/// use `astar`.
+/// use [`astar`].
 ///
 /// The iterator `astar` returns favors edges with lower estimated remaining
 /// distances, so given meaningful estimates, this algorithm can find a shortest
@@ -38,6 +38,8 @@ use std::ops::Add;
 /// them in an order that efficiently finds shortest paths to a given node.
 /// If you want to iterate only over edges that are part of shortest paths,
 /// use the `shortest_only` adapter.
+///
+/// [`astar`]: crate::astar::astar
 pub fn astar_weighted<N, F, I, W>(start: N, mut neighbors: F) -> AStarWeighted<N, F, W>
 where
     N: Clone + Debug + Eq + Hash,

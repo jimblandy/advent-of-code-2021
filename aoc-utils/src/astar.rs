@@ -6,8 +6,8 @@ use std::hash::Hash;
 /// Use the A* algorithm to find shortest paths from `start` to some ending
 /// location.
 ///
-/// Return an iterator over all the edges in the graph defined by the
-/// `neighbors` function, ordered such that:
+/// The call `astar(start, neighbors)` returns an iterator over all the edges in
+/// the graph defined by the `neighbors` function, ordered such that:
 ///
 /// - a node appears as an edge's origin only after it has appeared as a
 ///   destination (or it is the `start` node), to allow the consumer to actually
@@ -20,10 +20,13 @@ use std::hash::Hash;
 /// pairs `(neighbor, estimate)`, where `neighbor` is every node directly
 /// reachable from `n`, and `estimate` is a lower bound on the length of the
 /// shortest path from `neighbor` to the ending location. (The estimate is
-/// actually the only indication available to the iterator of where the end
-/// lies.)
+/// actually the only indication available to the iterator of where the target
+/// of the search lies.)
 ///
-/// The iterator `astar` returns favors edges with lower estimated remaining
+/// Every edge is assumed to have a length of one. If you need edges with
+/// varying weights, use [`astar_weighted`].
+///
+/// The iterator returned by `astar` favors edges with lower estimated remaining
 /// distances, so given meaningful estimates, this algorithm can find a shortest
 /// path to `start` exploring many fewer edges than a blind depth-first
 /// traversal.
@@ -32,6 +35,8 @@ use std::hash::Hash;
 /// them in an order that efficiently finds shortest paths to a given node.
 /// If you want to iterate only over edges that are part of shortest paths,
 /// use the `shortest_only` adapter.
+///
+/// [`astar_weighted`]: crate::astar_weighted::astar_weighted
 pub fn astar<N, F, I>(start: N, mut neighbors: F) -> impl Iterator<Item = Edge<N>>
 where
     N: Clone + Debug + Eq + Hash,
