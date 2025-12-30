@@ -28,9 +28,7 @@ impl FromStr for Claim {
             .map(str::trim)
             .collect::<Vec<_>>();
         if fields.len() != 6 {
-            return Err(Box::new(std::io::Error::other(
-                format!("bad claim: {s:?}"),
-            )));
+            return Err(Box::new(std::io::Error::other(format!("bad claim: {s:?}"))));
         }
         Ok(Claim {
             id: usize::from_str(fields[1])?,

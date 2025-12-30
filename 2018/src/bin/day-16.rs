@@ -179,9 +179,7 @@ fn main() {
             >= 3
         {
             count += 1;
-            println!(
-                "Sample execution #{i} behaves like three or more instructions:",
-            );
+            println!("Sample execution #{i} behaves like three or more instructions:",);
             for name in semantics
                 .iter()
                 .filter(|&&(_name, sem)| execution.behaves_like(sem))
@@ -192,10 +190,7 @@ fn main() {
         }
     }
 
-    println!(
-        "In total, {count} samples behave like three or or more opcodes."
-        
-    );
+    println!("In total, {count} samples behave like three or or more opcodes.");
 
     let mut possible = all_semantics()
         .into_iter()

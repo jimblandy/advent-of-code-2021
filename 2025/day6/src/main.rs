@@ -74,36 +74,32 @@ fn part2(problem: &str) -> u64 {
         .map(|(column, &op)| (column, char_to_fn(op)));
 
     // Produce the results for each column.
-    let column_results = operator_columns
-        .map(|(op_column, operator)| {
-            // Produce the operands to this operator, considering columns from
-            // left to right until we reach a column containing only spaces.
-            let operands =
-                (op_column..)
-                .map(|column| {
-                    // Produce the characters in `column` from all rows,
-                    // substituting spaces if we go off the end of a line.
-                    let column_chars = numbers
-                        .iter()
-                        .map(|row| row.get(column).cloned().unwrap_or(' '));
-                    // Turn the column into a string, squeezing out spaces. This
-                    // means that the blank column that separates problems turns
-                    // into an empty string.
-                    column_chars
-                        .filter(|&ch| ch != ' ')
-                        .collect::<String>()
-                })
-                // When we reach an empty column, that's the end of the operands
-                // for this operator.
-                .take_while(|operand_str| !operand_str.is_empty())
-                // Parse the column of digits as a number. We can unwrap because
-                // we know they're all digits.
-                .map(|s| u64::from_str(&s).unwrap());
+    let column_results = operator_columns.map(|(op_column, operator)| {
+        // Produce the operands to this operator, considering columns from
+        // left to right until we reach a column containing only spaces.
+        let operands = (op_column..)
+            .map(|column| {
+                // Produce the characters in `column` from all rows,
+                // substituting spaces if we go off the end of a line.
+                let column_chars = numbers
+                    .iter()
+                    .map(|row| row.get(column).cloned().unwrap_or(' '));
+                // Turn the column into a string, squeezing out spaces. This
+                // means that the blank column that separates problems turns
+                // into an empty string.
+                column_chars.filter(|&ch| ch != ' ').collect::<String>()
+            })
+            // When we reach an empty column, that's the end of the operands
+            // for this operator.
+            .take_while(|operand_str| !operand_str.is_empty())
+            // Parse the column of digits as a number. We can unwrap because
+            // we know they're all digits.
+            .map(|s| u64::from_str(&s).unwrap());
 
-            // Apply `operator` to all the operands. We can unwrap because we
-            // know there's at least one operand.
-            operands.reduce(operator).unwrap()
-        });
+        // Apply `operator` to all the operands. We can unwrap because we
+        // know there's at least one operand.
+        operands.reduce(operator).unwrap()
+    });
 
     column_results.sum()
 }

@@ -42,7 +42,11 @@ fn in_ranges(ranges: &[RangeInclusive<usize>], n: usize) -> bool {
 fn part1(input: &Problem) -> usize {
     let mut input = input.clone();
     simplify_ranges(&mut input.fresh);
-    input.available.iter().filter(|&&item| in_ranges(&input.fresh, item)).count()
+    input
+        .available
+        .iter()
+        .filter(|&&item| in_ranges(&input.fresh, item))
+        .count()
 }
 
 fn checked_range_len(range: &RangeInclusive<usize>) -> usize {

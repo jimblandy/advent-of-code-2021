@@ -1,6 +1,6 @@
 use aoc_utils::ndarray;
-use ndarray::{azip, Array2, Axis};
 use aoc_utils::{cartesian_product, edge_indexes2, IteratorExt};
+use ndarray::{azip, Array2, Axis};
 use std::str::FromStr;
 
 #[allow(dead_code)]
@@ -91,7 +91,5 @@ fn main() {
     let close_area = cartesian_product(0..height, 0..width)
         .filter(|m| points.iter().map(|p| manhattan(m, p)).sum::<usize>() < 10000)
         .count();
-    println!(
-        "Number of grid points with a summed distance < 10000: {close_area}"
-    );
+    println!("Number of grid points with a summed distance < 10000: {close_area}");
 }

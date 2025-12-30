@@ -54,7 +54,10 @@ fn part1(problem: &Problem, num_connections: usize) -> usize {
 
 #[test]
 fn test_part1() {
-    assert_eq!(part1(&Problem::parse(include_str!("test_input.txt")), 10), 40);
+    assert_eq!(
+        part1(&Problem::parse(include_str!("test_input.txt")), 10),
+        40
+    );
 }
 
 fn part2(problem: &Problem) -> u64 {
@@ -77,7 +80,10 @@ fn part2(problem: &Problem) -> u64 {
 
 #[test]
 fn test_part2() {
-    assert_eq!(part2(&Problem::parse(include_str!("test_input.txt"))), 25272);
+    assert_eq!(
+        part2(&Problem::parse(include_str!("test_input.txt"))),
+        25272
+    );
 }
 
 fn main() {

@@ -76,7 +76,11 @@ fn test_part2() {
 }
 
 fn part2(input: &[&[u64]]) -> u64 {
-    input.iter().cloned().map(|bank| max_joltage(12, bank)).sum()
+    input
+        .iter()
+        .cloned()
+        .map(|bank| max_joltage(12, bank))
+        .sum()
 }
 
 fn main() {

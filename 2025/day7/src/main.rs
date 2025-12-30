@@ -39,14 +39,20 @@ impl Problem {
     fn parse(input: &str) -> Self {
         let mut lines = input.lines();
         let width = lines.clone().map(|line| line.len()).max().unwrap();
-        let start = lines.next().unwrap().chars().position(|ch| ch == 'S').unwrap();
+        let start = lines
+            .next()
+            .unwrap()
+            .chars()
+            .position(|ch| ch == 'S')
+            .unwrap();
         let rows = lines
             .map(|line| Row {
-                splitters: line.chars()
+                splitters: line
+                    .chars()
                     .enumerate()
                     .filter(|&(_, ch)| ch == '^')
                     .map(|(col, _)| col)
-                    .collect()
+                    .collect(),
             })
             .collect();
         Problem { width, start, rows }
@@ -107,6 +113,12 @@ fn test_part2() {
 }
 
 fn main() {
-    println!("part 1: {}", part1(&Problem::parse(include_str!("input.txt"))));
-    println!("part 2: {}", part2(&Problem::parse(include_str!("input.txt"))));
+    println!(
+        "part 1: {}",
+        part1(&Problem::parse(include_str!("input.txt")))
+    );
+    println!(
+        "part 2: {}",
+        part2(&Problem::parse(include_str!("input.txt")))
+    );
 }

@@ -124,7 +124,9 @@ impl FromStr for Map {
                         if units_hp_set > width {
                             bail!("hp data has more units than map");
                         }
-                        if let Square::Unit { tribe, hit_points } = &mut map[[row, units_hp_set - 1]] {
+                        if let Square::Unit { tribe, hit_points } =
+                            &mut map[[row, units_hp_set - 1]]
+                        {
                             if *tribe != next_tribe {
                                 bail!("hp data doesn't match units in map");
                             }
@@ -1023,9 +1025,7 @@ fn main() -> Result<(), Error> {
     let mut map = Map::from_str(INPUT)?;
     println!("Initial map:{map}");
     let (rounds, total_hp) = map.combat();
-    println!(
-        "Combat ends after {rounds} full rounds, with {total_hp} total hit points left"
-    );
+    println!("Combat ends after {rounds} full rounds, with {total_hp} total hit points left");
     println!("Outcome: {} * {} = {}", rounds, total_hp, rounds * total_hp);
     println!("Final map:{map}");
 
@@ -1043,9 +1043,7 @@ fn main() -> Result<(), Error> {
         //eprintln!("Round #{} begins:", rounds + 1);
         let just_before = map.clone();
         if !map.round() {
-            println!(
-                "Combat ended with no elf deaths, after {rounds} complete rounds!"
-            );
+            println!("Combat ended with no elf deaths, after {rounds} complete rounds!");
             println!("final map:{map}");
             break;
         }
@@ -1060,9 +1058,7 @@ fn main() -> Result<(), Error> {
     let mut map = Map::from_str(INPUT)?;
     map.1.elf_damage = elf_damage;
     let (rounds, total_hp) = map.combat();
-    println!(
-        "Combat ends after {rounds} full rounds, with {total_hp} total hit points left"
-    );
+    println!("Combat ends after {rounds} full rounds, with {total_hp} total hit points left");
     println!("Outcome: {} * {} = {}", rounds, total_hp, rounds * total_hp);
 
     Ok(())

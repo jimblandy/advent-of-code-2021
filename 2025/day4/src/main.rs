@@ -24,7 +24,10 @@ impl ops::Index<(isize, isize)> for Problem<'_> {
 impl ops::IndexMut<(isize, isize)> for Problem<'_> {
     fn index_mut(&mut self, (x, y): (isize, isize)) -> &mut Self::Output {
         if 0 <= x && x < self.width && 0 <= y && y < self.height {
-            self.map.to_mut().get_mut((y * self.width + x) as usize).unwrap()
+            self.map
+                .to_mut()
+                .get_mut((y * self.width + x) as usize)
+                .unwrap()
         } else {
             panic!("Problem coords out of range: {:?}", (x, y));
         }
@@ -49,13 +52,12 @@ impl Problem<'_> {
     }
 
     fn movable(&self) -> impl Iterator<Item = (isize, isize)> + '_ {
-        self.rolls()
-            .filter(|&(x, y)| {
-                offsets()
-                    .filter(|&(dx, dy)| self[(x + dx, y + dy)] == b'@')
-                    .count()
-                    < 4
-            })
+        self.rolls().filter(|&(x, y)| {
+            offsets()
+                .filter(|&(dx, dy)| self[(x + dx, y + dy)] == b'@')
+                .count()
+                < 4
+        })
     }
 }
 
@@ -90,7 +92,6 @@ fn test_part1() {
     assert_eq!(part1(&input::INPUT), 1416);
 }
 
-
 fn remove(input: &Problem<'_>, output: &mut Problem<'_>) -> usize {
     let mut removed = 0;
 
@@ -112,7 +113,7 @@ fn part2(problem: &Problem<'_>) -> usize {
     loop {
         let just_removed = remove(&temp1, &mut temp2);
         if just_removed == 0 {
-            return removed
+            return removed;
         }
         removed += just_removed;
         std::mem::swap(&mut temp1, &mut temp2);
@@ -124,7 +125,6 @@ fn test_part2() {
     assert_eq!(part2(&SAMPLE_INPUT), 43);
     assert_eq!(part2(&input::INPUT), 9086);
 }
-
 
 fn main() {
     println!("part 1: {}", part1(&input::INPUT));

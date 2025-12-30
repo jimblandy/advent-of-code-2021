@@ -2,8 +2,8 @@ use aoc_utils as aoc;
 
 use anyhow::{bail, Error};
 use aoc::bfs::breadth_first;
-use aoc::{cartesian_product, union_ranges, Cursor};
 use aoc::ndarray::{Array2, ArrayView1};
+use aoc::{cartesian_product, union_ranges, Cursor};
 use std::collections::HashSet;
 use std::convert::{TryFrom, TryInto};
 use std::fmt;
@@ -447,7 +447,5 @@ fn main() {
         .filter(|(_from, to, _len)| seen.insert(*to)) // take only the first edge to each node
         .filter(|(_from, _to, len)| *len >= 1000)
         .count();
-    println!(
-        "{at_least_1k} rooms can only be reached by passing through at least 1000 doors."
-    );
+    println!("{at_least_1k} rooms can only be reached by passing through at least 1000 doors.");
 }

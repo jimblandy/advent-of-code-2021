@@ -1,7 +1,7 @@
 use aoc_utils as aoc;
 
-use aoc::{cartesian_product, parse_map};
 use aoc::ndarray::{Array2, Axis};
+use aoc::{cartesian_product, parse_map};
 
 #[allow(dead_code)]
 static TEST_INPUT: &str = include_str!("day-18.test");

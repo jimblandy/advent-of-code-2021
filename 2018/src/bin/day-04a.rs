@@ -100,10 +100,7 @@ fn main() -> Result<(), std::io::Error> {
                     State::Nobody => State::Awake(g),
                     State::Awake(_) => State::Awake(g),
                     State::Asleep(prior, start) => {
-                        records
-                            .entry(prior)
-                            .or_default()
-                            .mark(start..event.time);
+                        records.entry(prior).or_default().mark(start..event.time);
                         State::Awake(g)
                     }
                 };
@@ -120,10 +117,7 @@ fn main() -> Result<(), std::io::Error> {
                     State::Nobody => panic!("Who woke up??"),
                     State::Awake(g) => panic!("I thought {} was already awake?", g),
                     State::Asleep(guard, start) => {
-                        records
-                            .entry(guard)
-                            .or_default()
-                            .mark(start..event.time);
+                        records.entry(guard).or_default().mark(start..event.time);
                         State::Awake(guard)
                     }
                 };
