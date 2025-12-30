@@ -1,14 +1,11 @@
 #![allow(dead_code)]
-#![feature(range_contains)]
 
 extern crate advent_of_code_2018 as aoc;
-#[macro_use]
-extern crate failure;
 extern crate itertools;
 extern crate ndarray;
 
+use anyhow::{anyhow, bail, Error, Result};
 use aoc::union_ranges;
-use failure::Error;
 use itertools::Itertools;
 use ndarray::{Array2, Axis};
 use std::io::{BufWriter, Write};
@@ -43,7 +40,7 @@ static TEST_INPUT: &str = include_str!("day-17.test");
 #[allow(dead_code)]
 static INPUT: &str = include_str!("day-17.input");
 
-fn display(map: &Array2<char>, bounds: &Vein) -> Result<(), Error> {
+fn display(map: &Array2<char>, bounds: &Vein) -> Result<()> {
     let stdout = std::io::stdout();
     let mut handle = BufWriter::new(stdout.lock());
     for r in bounds.y.clone() {
@@ -60,16 +57,16 @@ impl FromStr for Vein {
     fn from_str(s: &str) -> Result<Vein, Error> {
         let comma = s
             .find(',')
-            .ok_or_else(|| format_err!("missing comma in vein: {:?}", s))?;
+            .ok_or_else(|| anyhow!("missing comma in vein: {:?}", s))?;
         let eq1 = s[..comma].trim();
         let eq2 = s[comma + 1..].trim();
         if eq1.len() < 2 || &eq1[1..2] != "=" || eq2.len() < 2 || &eq2[1..2] != "=" {
-            return Err(format_err!("missing '=' in vein: {:?}", s));
+            bail!("missing '=' in vein: {:?}", s);
         }
         let (xeq, yeq) = match (&eq1[..1], &eq2[..1]) {
             ("x", "y") => (&eq1[2..], &eq2[2..]),
             ("y", "x") => (&eq2[2..], &eq1[2..]),
-            _ => return Err(format_err!("odd axis labels in vein: {:?}", s)),
+            _ => bail!("odd axis labels in vein: {:?}", s),
         };
 
         fn parse_range(s: &str) -> Result<Range<usize>, Error> {

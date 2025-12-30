@@ -1,4 +1,3 @@
-#![feature(euclidean_division)]
 #![allow(dead_code)]
 
 extern crate advent_of_code_2018;

@@ -1,5 +1,3 @@
-#![feature(euclidean_division)]
-
 extern crate advent_of_code_2018 as aoc;
 
 use std::cmp::{max, min};
@@ -26,7 +24,7 @@ fn mul(a: Point, b: Point) -> Point {
 
 /// Dot product of two `Point`s.
 fn dot(a: Point, b: Point) -> isize {
-    (a.0 * b.0 + a.1 * b.1 + a.2 * b.2)
+    a.0 * b.0 + a.1 * b.1 + a.2 * b.2
 }
 
 /// An 'orthant' is a `Point` whose components are all either `1` or `-1`. We

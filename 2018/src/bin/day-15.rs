@@ -1,12 +1,10 @@
 extern crate advent_of_code_2018 as aoc;
-#[macro_use]
-extern crate failure;
 extern crate ndarray;
 
+use anyhow::{bail, Error};
 use aoc::astar::{astar, Edge};
 use aoc::bfs::breadth_first;
 use aoc::{first_run, map_bounds, select_iter, Manhattan};
-use failure::Error;
 use ndarray::{Array2, Axis};
 use std::fmt;
 use std::str::FromStr;
@@ -100,7 +98,7 @@ impl FromStr for Map {
                     '.' => Square::Empty,
                     'G' => Square::new_unit(Tribe::Goblin),
                     'E' => Square::new_unit(Tribe::Elf),
-                    _ => return Err(format_err!("Bad map character: {:?}", ch)),
+                    _ => bail!("Bad map character: {:?}", ch),
                 };
             }
             let mut units_hp_set = 0;
@@ -110,26 +108,26 @@ impl FromStr for Map {
                     let next_tribe = match cursor.next() {
                         Some('G') => Tribe::Goblin,
                         Some('E') => Tribe::Elf,
-                        ch => return Err(format_err!("Bad hp tribe character: {:?}", ch)),
+                        ch => bail!("Bad hp tribe character: {:?}", ch),
                     };
                     if cursor.next() != Some('(') {
-                        return Err(format_err!("expected '(' after hp tribe"));
+                        bail!("expected '(' after hp tribe");
                     }
                     let tail = cursor.as_str();
                     let num_end = if let Some(num_end) = tail.find(')') {
                         num_end
                     } else {
-                        return Err(format_err!("expected ')' after hp"));
+                        bail!("expected ')' after hp");
                     };
                     loop {
                         units_hp_set += 1;
                         if units_hp_set > width {
-                            return Err(format_err!("hp data has more units than map"));
+                            bail!("hp data has more units than map");
                         }
                         match &mut map[[row, units_hp_set - 1]] {
                             Square::Unit { tribe, hit_points } => {
                                 if *tribe != next_tribe {
-                                    return Err(format_err!("hp data doesn't match units in map"));
+                                    bail!("hp data doesn't match units in map");
                                 }
                                 *hit_points = usize::from_str(&tail[..num_end])?;
                                 break;

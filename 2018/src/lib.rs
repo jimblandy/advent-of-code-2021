@@ -1,5 +1,3 @@
-#![feature(range_is_empty)]
-
 extern crate ndarray;
 
 use ndarray::{Array2, Axis};

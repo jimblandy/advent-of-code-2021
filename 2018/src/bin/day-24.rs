@@ -1,5 +1,3 @@
-#![feature(range_is_empty)]
-
 extern crate advent_of_code_2018 as aoc;
 
 use std::cmp::min;

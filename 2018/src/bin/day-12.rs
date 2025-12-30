@@ -1,5 +1,3 @@
-#![feature(copy_within)]
-
 use std::iter::repeat;
 
 #[allow(dead_code)]

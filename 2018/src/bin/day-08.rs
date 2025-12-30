@@ -67,7 +67,6 @@ impl Sink for SumMetadata {
 #[derive(Debug, Default)]
 struct Node {
     children: Vec<Node>,
-    meta_sum: usize,
     value: usize,
 }
 

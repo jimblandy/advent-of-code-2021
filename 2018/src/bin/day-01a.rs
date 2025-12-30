@@ -1,10 +1,8 @@
-extern crate failure;
-
-use failure::Error;
+use anyhow::Result;
 use std::io::Read;
 use std::str::FromStr;
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<()> {
     let mut input = String::new();
     {
         let stdin = std::io::stdin();

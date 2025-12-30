@@ -1,13 +1,9 @@
-#![feature(try_from)]
-
 extern crate advent_of_code_2018 as aoc;
-#[macro_use]
-extern crate failure;
 extern crate ndarray;
 
+use anyhow::{bail, Error};
 use aoc::bfs::breadth_first;
 use aoc::{cartesian_product, union_ranges, Cursor};
-use failure::Error;
 use ndarray::{Array2, ArrayView1};
 use std::collections::HashSet;
 use std::convert::{TryFrom, TryInto};
@@ -131,7 +127,7 @@ impl TryFrom<char> for Dir {
             'S' => Ok(Dir::South),
             'E' => Ok(Dir::East),
             'W' => Ok(Dir::West),
-            ch => Err(format_err!("Bad direction letter: {:?}", ch)),
+            ch => bail!("Bad direction letter: {:?}", ch),
         }
     }
 }
@@ -305,10 +301,7 @@ impl FromStr for Concat {
                     Some('|') => cursor.next(),
                     Some(')') => break,
                     other => {
-                        return Err(format_err!(
-                            "regexp alternative contains unexpected: {:?}",
-                            other
-                        ));
+                        bail!("regexp alternative contains unexpected: {:?}", other);
                     }
                 };
             }
@@ -320,17 +313,17 @@ impl FromStr for Concat {
         let mut cursor = Cursor::new(s);
 
         if cursor.next() != Some('^') {
-            return Err(format_err!("regexp missing start anchor"));
+            bail!("regexp missing start anchor");
         }
 
         let concat = parse_concat(&mut cursor)?;
 
         if cursor.next() != Some('$') {
-            return Err(format_err!("regexp missing end anchor"));
+            bail!("regexp missing end anchor");
         }
 
         if cursor.next() != None {
-            return Err(format_err!("regexp has more characters after end anchor"));
+            bail!("regexp has more characters after end anchor");
         }
 
         Ok(concat)

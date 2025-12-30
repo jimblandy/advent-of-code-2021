@@ -21,7 +21,7 @@ impl Claim {
 }
 
 impl FromStr for Claim {
-    type Err = Box<Error>;
+    type Err = Box<dyn Error>;
     fn from_str(s: &str) -> Result<Claim, Self::Err> {
         let fields = s
             .split(&['#', '@', ',', ':', 'x'][..])
@@ -43,7 +43,7 @@ impl FromStr for Claim {
     }
 }
 
-fn main() -> Result<(), Box<Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     let stdin = std::io::stdin();
     let lines: Vec<_> = stdin.lock().lines().collect::<Result<_, _>>()?;
     let claims: Vec<_> = lines
