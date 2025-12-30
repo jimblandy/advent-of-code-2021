@@ -1,9 +1,9 @@
 use std::collections::{BTreeMap, HashMap};
 
 #[allow(dead_code)]
-static TEST_INPUT: &'static str = include_str!("day-07.test");
+static TEST_INPUT: &str = include_str!("day-07.test");
 #[allow(dead_code)]
-static INPUT: &'static str = include_str!("day-07.input");
+static INPUT: &str = include_str!("day-07.input");
 
 #[derive(Debug, Eq, PartialEq)]
 struct Event<T> {
@@ -103,8 +103,8 @@ fn main() {
     let mut posts: HashMap<char, Vec<char>> = HashMap::new();
     let mut blockers: BTreeMap<char, usize> = BTreeMap::new();
     for (pre, post) in &deps {
-        posts.entry(*post).or_insert(vec![]);
-        posts.entry(*pre).or_insert(vec![]).push(*post);
+        posts.entry(*post).or_default();
+        posts.entry(*pre).or_default().push(*post);
         blockers.entry(*pre).or_insert(0);
         *blockers.entry(*post).or_insert(0) += 1;
     }
@@ -132,7 +132,7 @@ fn main() {
             }
         }
 
-        println!("Active tasks at time {}:", now);
+        println!("Active tasks at time {now}:");
         for event in &pending.0 {
             println!("  {}, done {}", event.value, event.time);
         }
@@ -158,12 +158,12 @@ fn main() {
 
         // Remove the completed task as a blocker for anything else.
         for post in &posts[&finished.value] {
-            *blockers.get_mut(&post).unwrap() -= 1;
+            *blockers.get_mut(post).unwrap() -= 1;
         }
     }
 
-    println!("Final time: {}", now);
+    println!("Final time: {now}");
 
-    println!("Sequence: {}", sequence);
-    println!("Remaining counts: {:#?}", blockers);
+    println!("Sequence: {sequence}");
+    println!("Remaining counts: {blockers:#?}");
 }

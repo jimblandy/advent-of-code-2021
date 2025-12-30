@@ -1,5 +1,5 @@
 pub const IP: usize = 2;
-pub static PROGRAM: &'static [AssemblyInsn] = &[
+pub static PROGRAM: &[AssemblyInsn] = &[
     AssemblyInsn { mnemonic: "addi", a: 2, b: 16, c: 2 },
     AssemblyInsn { mnemonic: "seti", a: 1, b: 1, c: 1 },
     AssemblyInsn { mnemonic: "seti", a: 1, b: 4, c: 3 },

@@ -1,7 +1,7 @@
 #[allow(dead_code)]
-static TEST_INPUT: &'static str = include_str!("day-10.test");
+static TEST_INPUT: &str = include_str!("day-10.test");
 #[allow(dead_code)]
-static INPUT: &'static str = include_str!("day-10.input");
+static INPUT: &str = include_str!("day-10.input");
 
 extern crate advent_of_code_2018;
 
@@ -67,7 +67,7 @@ fn main() {
     let mut lights: Vec<Light> = INPUT
         .lines()
         .map(|line| {
-            let fields = splits(&line, "position=<_,_> velocity=<_,_>", i32::from_str)
+            let fields = splits(line, "position=<_,_> velocity=<_,_>", i32::from_str)
                 .expect("failed to parse fields");
             Light {
                 position: (fields[0], fields[1]),
@@ -83,7 +83,7 @@ fn main() {
         if new_area > a {
             step(&mut lights, -1);
             plot(&lights);
-            println!("elapsed time {} secs", secs);
+            println!("elapsed time {secs} secs");
             break;
         }
         a = new_area;

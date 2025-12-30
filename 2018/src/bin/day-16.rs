@@ -166,7 +166,7 @@ fn main() {
     println!("Example step behaves like:");
     for (name, sem) in &semantics {
         if example.behaves_like(sem) {
-            println!("    {}", name);
+            println!("    {name}");
         }
     }
 
@@ -180,22 +180,21 @@ fn main() {
         {
             count += 1;
             println!(
-                "Sample execution #{} behaves like three or more instructions:",
-                i
+                "Sample execution #{i} behaves like three or more instructions:",
             );
             for name in semantics
                 .iter()
                 .filter(|(_name, sem)| execution.behaves_like(sem))
                 .map(|(name, _sem)| name)
             {
-                println!("    {}", name);
+                println!("    {name}");
             }
         }
     }
 
     println!(
-        "In total, {} samples behave like three or or more opcodes.",
-        count
+        "In total, {count} samples behave like three or or more opcodes."
+        
     );
 
     let mut possible = all_semantics()
@@ -225,8 +224,7 @@ fn main() {
         .filter(|(_i, (_name, _sem, _opcodes, count))| *count == 1)
         .map(|(i, _)| i)
         .collect::<Vec<_>>();
-    while !worklist.is_empty() {
-        let sem_ix = worklist.pop().unwrap();
+    while let Some(sem_ix) = worklist.pop() {
         let op = {
             let (_name, _sem, opcodes, count) = &mut possible[sem_ix];
             assert_eq!(*count, 1);
@@ -285,7 +283,7 @@ fn main() {
     // Print out the opcode map.
     println!("Opcode map:");
     for (op, (name, _sem)) in map.iter().enumerate() {
-        println!("  {}: {}", op, name);
+        println!("  {op}: {name}");
     }
 
     // Run the sample program.
@@ -294,5 +292,5 @@ fn main() {
         map[insn.opcode as usize].1.step(insn, &mut state);
     }
 
-    println!("Final state: {:?}", state);
+    println!("Final state: {state:?}");
 }

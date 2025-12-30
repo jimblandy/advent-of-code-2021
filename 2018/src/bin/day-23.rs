@@ -15,7 +15,7 @@ static INPUT: &[Nanobot] = &include!("day-23.input");
 fn main() {
     let strongest = INPUT.iter().max_by_key(|n| n.radius).unwrap();
 
-    println!("Strongest nanobot: {:?}", strongest);
+    println!("Strongest nanobot: {strongest:?}");
 
     println!(
         "Number of nanobots in range: {}",

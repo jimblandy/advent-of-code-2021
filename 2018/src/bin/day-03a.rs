@@ -28,9 +28,8 @@ impl FromStr for Claim {
             .map(str::trim)
             .collect::<Vec<_>>();
         if fields.len() != 6 {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("bad claim: {:?}", s),
+            return Err(Box::new(std::io::Error::other(
+                format!("bad claim: {s:?}"),
             )));
         }
         Ok(Claim {
@@ -48,15 +47,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let lines: Vec<_> = stdin.lock().lines().collect::<Result<_, _>>()?;
     let claims: Vec<_> = lines
         .iter()
-        .map(|l| Claim::from_str(&l))
+        .map(|l| Claim::from_str(l))
         .collect::<Result<_, _>>()?;
 
     let width = claims.iter().map(|c| c.right()).max().unwrap();
     let height = claims.iter().map(|c| c.bottom()).max().unwrap();
-    println!("overall dimensions: {}x{}", width, height);
+    println!("overall dimensions: {width}x{height}");
 
-    let mut used = Vec::new();
-    used.resize(width * height, 0);
+    let mut used = vec![0; width * height];
     for claim in &claims {
         for r in 0..claim.height {
             for c in 0..claim.width {

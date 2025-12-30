@@ -34,7 +34,7 @@ fn simplify_ranges(ranges: &mut Vec<RangeInclusive<usize>>) {
     ranges.truncate(extending + 1);
 }
 
-fn in_ranges(ranges: &Vec<RangeInclusive<usize>>, n: usize) -> bool {
+fn in_ranges(ranges: &[RangeInclusive<usize>], n: usize) -> bool {
     let p = ranges.partition_point(|r| *r.end() < n);
     ranges.get(p).is_some_and(|r| r.contains(&n))
 }

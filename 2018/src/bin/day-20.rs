@@ -126,7 +126,7 @@ impl TryFrom<char> for Dir {
             'S' => Ok(Dir::South),
             'E' => Ok(Dir::East),
             'W' => Ok(Dir::West),
-            ch => bail!("Bad direction letter: {:?}", ch),
+            ch => bail!("Bad direction letter: {ch:?}"),
         }
     }
 }
@@ -235,8 +235,7 @@ impl Concat {
     fn trace(&self, map: &mut Map, locs: &PointSet) -> PointSet {
         let locs = self.head.iter().fold(locs.clone(), |acc, (run, alt)| {
             let locs = map.trace_run_from_set(run, &acc);
-            let locs = alt.trace(map, locs);
-            locs
+            alt.trace(map, locs)
         });
         map.trace_run_from_set(&self.tail, &locs)
     }
@@ -300,7 +299,7 @@ impl FromStr for Concat {
                     Some('|') => cursor.next(),
                     Some(')') => break,
                     other => {
-                        bail!("regexp alternative contains unexpected: {:?}", other);
+                        bail!("regexp alternative contains unexpected: {other:?}");
                     }
                 };
             }
@@ -321,7 +320,7 @@ impl FromStr for Concat {
             bail!("regexp missing end anchor");
         }
 
-        if cursor.next() != None {
+        if cursor.next().is_some() {
             bail!("regexp has more characters after end anchor");
         }
 
@@ -401,7 +400,7 @@ impl Map {
             // If we were installing a new door to a cell that was previously
             // visited, then the maze contains cycles.
             if new_door && !self.0[loc].is_empty() {
-                println!("map is cyclic: {:?}", loc);
+                println!("map is cyclic: {loc:?}");
             }
             self.0[loc].insert(dir.reverse());
         }
@@ -412,7 +411,7 @@ impl Map {
         // The breadth_first iterator produces all edges in the graph, but we
         // want only the first edge to each node.
         let mut seen = PointSet::new();
-        breadth_first(start, |&f| self.0[f].map(move |d| apply_delta(f, d.into())))
+        breadth_first(start, |&f| self.0[f].map(move |d| apply_delta(f, d)))
             .filter(|(_from, to, _len)| seen.insert(*to))
             .last()
             .unwrap()
@@ -423,11 +422,11 @@ impl Map {
 fn main() {
     fn summarize(input: &str) -> (Map, Point) {
         let r = Concat::from_str(input).expect("bad summarize input");
-        println!("regex: {:.80}", input);
+        println!("regex: {input:.80}");
         println!("summary: {:?}", r.summary());
 
         let (map, start) = Map::from_regex(&r);
-        print!("map:\n{}", map);
+        print!("map:\n{map}");
         println!(
             "longest path from {:?} is {} steps",
             start,
@@ -444,12 +443,11 @@ fn main() {
     let (map, start) = summarize(INPUT);
 
     let mut seen = PointSet::new();
-    let at_least_1k = breadth_first(start, |&f| map.0[f].map(move |d| apply_delta(f, d.into())))
+    let at_least_1k = breadth_first(start, |&f| map.0[f].map(move |d| apply_delta(f, d)))
         .filter(|(_from, to, _len)| seen.insert(*to)) // take only the first edge to each node
         .filter(|(_from, _to, len)| *len >= 1000)
         .count();
     println!(
-        "{} rooms can only be reached by passing through at least 1000 doors.",
-        at_least_1k
+        "{at_least_1k} rooms can only be reached by passing through at least 1000 doors."
     );
 }

@@ -105,6 +105,7 @@ fn test_distances() {
 /// This is the number of elements occupied in the distances
 /// half-matrix by rows `0` through `n`, inclusive.
 fn triangle(n: usize) -> usize {
+    #[allow(clippy::manual_div_ceil)]
     if n & 1 == 0 {
         (n / 2) * (n + 1)
     } else {

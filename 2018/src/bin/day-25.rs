@@ -41,10 +41,10 @@ fn count_constellations(points: &[Point]) {
 
     println!("{} distinct constellations.", constellations.len());
     for constellation in &constellations {
-        print!("Constellation {}:", constellation);
+        print!("Constellation {constellation}:");
         for (i, parent) in parent.iter().enumerate() {
             if parent == constellation {
-                print!(" {}", i);
+                print!(" {i}");
             }
         }
         println!();

@@ -50,7 +50,7 @@ impl Sets {
 
     pub fn size(&self, n: usize) -> usize {
         let mut sets = self.elements.borrow_mut();
-        let (rep, size) = compress_path(&mut *sets, n);
+        let (rep, size) = compress_path(&mut sets, n);
         size
     }
 }

@@ -1,9 +1,9 @@
-use std::iter::repeat;
+use std::iter::repeat_n;
 
 #[allow(dead_code)]
-static TEST_INPUT: &'static str = include_str!("day-12.test");
+static TEST_INPUT: &str = include_str!("day-12.test");
 #[allow(dead_code)]
-static INPUT: &'static str = include_str!("day-12.input");
+static INPUT: &str = include_str!("day-12.input");
 
 type Rule = [bool; 32];
 
@@ -76,12 +76,12 @@ impl State {
 
     fn step(&mut self, rule: &Rule, next: &mut State) {
         // We don't support rules that allow plants to spurt up out of nowhere.
-        assert_eq!(rule[0], false);
+        assert!(!rule[0]);
 
         next.pots.clear();
         next.origin = self.origin - 2;
         let mut neighborhood: usize = 0;
-        for pot in self.pots.iter().cloned().chain(repeat(false).take(4)) {
+        for pot in self.pots.iter().cloned().chain(repeat_n(false, 4)) {
             neighborhood <<= 1;
             neighborhood |= pot as usize;
             neighborhood &= 0b11111;
@@ -130,7 +130,7 @@ impl State {
 
 fn main() {
     let mut lines = INPUT.lines();
-    let mut state = State::from_input(&lines.next().expect("no initial state?"));
+    let mut state = State::from_input(lines.next().expect("no initial state?"));
     let mut rule = [false; 32];
     for line in lines {
         if line.trim().is_empty() {

@@ -114,7 +114,7 @@ fn main() {
         }
     }
 
-    println!("All right! Generation {} is part of a cycle!", slow_gen);
+    println!("All right! Generation {slow_gen} is part of a cycle!");
 
     let mut period = 0;
     loop {
@@ -126,7 +126,7 @@ fn main() {
         }
     }
 
-    println!("Period of repetition is {}", period);
+    println!("Period of repetition is {period}");
 
     let additional = 1_000_000_000 - slow_gen;
     let just_as_good_additional = additional % period;
@@ -136,6 +136,6 @@ fn main() {
     }
 
     let census = map_census(&slow_map);
-    println!("Final census: {:?}", census);
+    println!("Final census: {census:?}");
     println!("value: {}", census.wooded * census.lumberyard);
 }

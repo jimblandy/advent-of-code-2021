@@ -21,10 +21,10 @@ fn main() -> Result<(), std::io::Error> {
     for line in stdin.lock().lines() {
         let line = line?;
         let h = hist(hist(line.chars()).values().cloned());
-        if let Some(_) = h.get(&2) {
+        if h.contains_key(&2) {
             twos += 1;
         }
-        if let Some(_) = h.get(&3) {
+        if h.contains_key(&3) {
             threes += 1;
         }
     }

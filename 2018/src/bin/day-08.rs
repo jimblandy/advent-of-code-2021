@@ -1,9 +1,9 @@
 use std::str::FromStr;
 
 #[allow(dead_code)]
-static TEST_INPUT: &'static str = include_str!("day-08.test");
+static TEST_INPUT: &str = include_str!("day-08.test");
 #[allow(dead_code)]
-static INPUT: &'static str = include_str!("day-08.input");
+static INPUT: &str = include_str!("day-08.input");
 
 trait Sink {
     type Node: std::fmt::Debug;
@@ -55,11 +55,11 @@ impl Sink for SumMetadata {
     }
 
     fn add_child(&mut self, parent: &mut Self::Node, child: Self::Node) {
-        println!("parent {:?} has child {:?}", parent, child);
+        println!("parent {parent:?} has child {child:?}");
     }
 
     fn add_metadata(&mut self, node: &mut Self::Node, metadata: usize) {
-        println!("parent {:?} has metadata {}", node, metadata);
+        println!("parent {node:?} has metadata {metadata}");
         self.meta_total += metadata;
     }
 }

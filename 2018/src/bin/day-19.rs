@@ -16,7 +16,7 @@ fn main() {
     loop {
         state.0[input::IP] = ip as Word;
         let insn = &machine_code[ip];
-        println!("State: {}    insn: {}", state, insn);
+        println!("State: {state}    insn: {insn}");
         insn.semantic.1.step(insn, &mut state);
         if state.0[input::IP] < 0 {
             break;
@@ -28,5 +28,5 @@ fn main() {
         }
     }
 
-    println!("Final state: {:?}", state);
+    println!("Final state: {state:?}");
 }

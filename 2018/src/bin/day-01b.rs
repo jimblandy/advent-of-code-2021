@@ -23,7 +23,7 @@ fn main() -> Result<()> {
     let mut seen = HashSet::new();
     for frequency in frequencies.take(100_000_000) {
         if !seen.insert(frequency) {
-            println!("{}", frequency);
+            println!("{frequency}");
             return Ok(());
         }
     }

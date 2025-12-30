@@ -94,7 +94,7 @@ fn test_part1() {
 fn remove(input: &Problem<'_>, output: &mut Problem<'_>) -> usize {
     let mut removed = 0;
 
-    output.map.to_mut().copy_from_slice(&*input.map);
+    output.map.to_mut().copy_from_slice(&input.map);
     for (x, y) in input.movable() {
         output[(x, y)] = b'.';
         removed += 1;

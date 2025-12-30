@@ -102,7 +102,7 @@ fn main() -> Result<(), std::io::Error> {
                     State::Asleep(prior, start) => {
                         records
                             .entry(prior)
-                            .or_insert_with(Record::default)
+                            .or_default()
                             .mark(start..event.time);
                         State::Awake(g)
                     }
@@ -122,7 +122,7 @@ fn main() -> Result<(), std::io::Error> {
                     State::Asleep(guard, start) => {
                         records
                             .entry(guard)
-                            .or_insert_with(Record::default)
+                            .or_default()
                             .mark(start..event.time);
                         State::Awake(guard)
                     }
@@ -163,10 +163,7 @@ fn main() -> Result<(), std::io::Error> {
             .enumerate()
             .max_by_key(|(_i, t)| *t)
             .unwrap();
-        println!(
-            "Guard #{} was asleep {} times on minute {}",
-            guard, times, minute
-        );
+        println!("Guard #{guard} was asleep {times} times on minute {minute}");
     }
 
     Ok(())

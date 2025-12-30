@@ -5,9 +5,9 @@ use std::cmp::max;
 use std::fmt;
 
 #[allow(dead_code)]
-static TEST_INPUT: &'static str = include_str!("day-13.test");
+static TEST_INPUT: &str = include_str!("day-13.test");
 #[allow(dead_code)]
-static INPUT: &'static str = include_str!("day-13.input");
+static INPUT: &str = include_str!("day-13.input");
 
 #[derive(Clone, Copy, Debug)]
 enum Legend {
@@ -155,7 +155,7 @@ fn parse_map(input: &str) -> (Vec<Cart>, Map) {
 }
 
 // carts must be sorted by position
-fn print(carts: &Vec<Cart>, map: &Map) {
+fn print(carts: &[Cart], map: &Map) {
     let mut next_cart = 0;
     for row in 0..map.len_of(Axis(0)) {
         for col in 0..map.len_of(Axis(1)) {

@@ -1,5 +1,5 @@
-static TEST_INPUT: &'static str = "dabAcCaCBAcCcaDA";
-static INPUT: &'static str = include_str!("day-05.input");
+static TEST_INPUT: &str = "dabAcCaCBAcCcaDA";
+static INPUT: &str = include_str!("day-05.input");
 
 fn reacts(left: char, right: char) -> bool {
     left.is_ascii_alphabetic()
@@ -31,7 +31,7 @@ fn main() {
 
     println!("{} units remaining after reacting", reduce(INPUT).len());
 
-    let (best_unit, length) = (b'a'..b'z')
+    let (best_unit, length) = (b'a'..=b'z')
         .map(|unit| {
             let unit = unit as char;
             let purified: String = INPUT
@@ -43,5 +43,5 @@ fn main() {
         .min_by_key(|(_unit, len)| *len)
         .unwrap();
 
-    println!("Dropping {:?} yields a length of {}", best_unit, length);
+    println!("Dropping {best_unit:?} yields a length of {length}");
 }

@@ -238,7 +238,7 @@ fn test_rescue_state() {
 }
 
 fn print_fastest_path(gi: &Map, depth: usize, target: Point) {
-    println!("Risk level: {}", risk_level(&gi, depth, target));
+    println!("Risk level: {}", risk_level(gi, depth, target));
 
     let mut back = HashMap::new();
     let ending_state = astar_weighted(
@@ -246,17 +246,16 @@ fn print_fastest_path(gi: &Map, depth: usize, target: Point) {
             position: (0, 0),
             equipped: Equipage::Torch,
         },
-        |state| state.neighbors(&gi, depth, target).into_iter(),
+        |state| state.neighbors(gi, depth, target).into_iter(),
     )
     .inspect(|edge| {
         //eprintln!("Considering: {:?}", edge);
         back.entry(edge.to.clone()).or_insert(edge.from.clone());
     })
-    .filter(|edge| edge.to.position == target && edge.to.equipped == Equipage::Torch)
-    .next()
+    .find(|edge| edge.to.position == target && edge.to.equipped == Equipage::Torch)
     .unwrap();
 
-    println!("Ending state: {:?}", ending_state);
+    println!("Ending state: {ending_state:?}");
     println!("Backtrace:");
     let mut state = ending_state.to.clone();
     loop {

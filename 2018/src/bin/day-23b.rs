@@ -227,9 +227,9 @@ impl OctaSection {
         // Find the `b` value for every face that produces a plane intersecting
         // the center; and then back it away from the center by the given radius.
         // Since we're using `<= b`, increase the enclosed entails increasing `b`.
-        for face in 0..8 {
-            bounds[face] = dot(orthant(face), center);
-            bounds[face] += radius;
+        for (face, bound) in bounds.iter_mut().enumerate() {
+            *bound = dot(orthant(face), center);
+            *bound += radius;
         }
 
         OctaSection(bounds)
@@ -241,8 +241,8 @@ impl OctaSection {
 
     fn intersection(&self, other: &OctaSection) -> OctaSection {
         let mut intersection = [0; 8];
-        for face in 0..8 {
-            intersection[face] = min(self.0[face], other.0[face]);
+        for ((intersection, this), other) in intersection.iter_mut().zip(&self.0).zip(&other.0) {
+            *intersection = min(*this, *other);
         }
         OctaSection::from_bounds(&intersection)
     }
@@ -257,8 +257,8 @@ impl OctaSection {
         }
 
         let mut enclosure = [0; 8];
-        for face in 0..8 {
-            enclosure[face] = max(self.0[face], other.0[face]);
+        for ((enclosure, this), other) in enclosure.iter_mut().zip(&self.0).zip(&other.0) {
+            *enclosure = max(*this, *other);
         }
         OctaSection::from_bounds(&enclosure)
     }
@@ -336,7 +336,7 @@ fn main() {
     index_overlaps.sort_by_key(|(i, overlaps)| *overlaps);
 
     for &(i, overlaps) in &index_overlaps {
-        println!("bot {} overlaps {} other bots", i, overlaps);
+        println!("bot {i} overlaps {overlaps} other bots");
     }
 
     const START: usize = 30;
@@ -345,12 +345,12 @@ fn main() {
         .fold(enclosure.clone(), |int, &(i, _)| int.intersection(&bots[i]));
 
     if intersection.is_empty() {
-        println!("Bots from {} onwards have no intersection.", START);
+        println!("Bots from {START} onwards have no intersection.");
     } else {
-        println!("Bots from {} onwards have a non-empty intersection.", START);
+        println!("Bots from {START} onwards have a non-empty intersection.");
     }
 
-    println!("Intersection: {:?}", intersection);
+    println!("Intersection: {intersection:?}");
     println!(
         "Shortest distance from origin to point in intersection: {}",
         intersection.shortest_distance_to_origin()

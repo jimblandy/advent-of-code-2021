@@ -77,12 +77,12 @@ fn team_name(i: usize) -> &'static str {
     }
 }
 
-fn total_units(team: &Vec<Group>) -> usize {
+fn total_units(team: &[Group]) -> usize {
     team.iter().map(|g| g.units).sum::<usize>()
 }
 
 fn battle(original_teams: &[Vec<Group>; 2], boost: usize) -> (usize, usize) {
-    println!("Applying boost of: {:?}", boost);
+    println!("Applying boost of: {boost:?}");
     let mut teams = original_teams.clone();
     for group in &mut teams[0] {
         group.damage += boost;
@@ -110,8 +110,8 @@ fn battle(original_teams: &[Vec<Group>; 2], boost: usize) -> (usize, usize) {
         }
 
         if NOISY {
-            for team in 0..=1 {
-                status(team_name(team), &teams[team]);
+            for (i, team) in teams.iter().enumerate() {
+                status(team_name(i), team);
             }
             println!();
         }
@@ -240,7 +240,7 @@ fn main() {
     assert!(battle(&original_teams, range.end).0 == 0);
 
     while range.end - range.start > 1 {
-        println!("Boost range: {:?}", range);
+        println!("Boost range: {range:?}");
         let boost = range.start + ((range.end - range.start) / 2) - 1;
         let (winner, units) = battle(&original_teams, boost);
         println!("{} wins with {} units left", team_name(winner), units);
@@ -250,5 +250,5 @@ fn main() {
             range.start = boost + 1;
         }
     }
-    println!("Final working boost range: {:?}", range);
+    println!("Final working boost range: {range:?}");
 }

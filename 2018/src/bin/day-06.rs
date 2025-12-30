@@ -4,23 +4,15 @@ use aoc_utils::{cartesian_product, edge_indexes2, IteratorExt};
 use std::str::FromStr;
 
 #[allow(dead_code)]
-static TEST_INPUT: &'static str = include_str!("day-06.test");
+static TEST_INPUT: &str = include_str!("day-06.test");
 #[allow(dead_code)]
-static INPUT: &'static str = include_str!("day-06.input");
+static INPUT: &str = include_str!("day-06.input");
 
-const NEW: usize = std::usize::MAX;
-const TIE: usize = std::usize::MAX - 1;
-
-fn abs_difference(a: usize, b: usize) -> usize {
-    if a > b {
-        a - b
-    } else {
-        b - a
-    }
-}
+const NEW: usize = usize::MAX;
+const TIE: usize = usize::MAX - 1;
 
 fn manhattan(a: &(usize, usize), b: &(usize, usize)) -> usize {
-    abs_difference(a.0, b.0) + abs_difference(a.1, b.1)
+    a.0.abs_diff(b.0) + a.1.abs_diff(b.1)
 }
 
 #[allow(dead_code)]
@@ -78,7 +70,7 @@ fn main() {
             infinite[map[e]] = true;
         }
     }
-    println!("{:?}", infinite);
+    println!("{infinite:?}");
 
     let mut areas = vec![0; points.len()];
     azip!((&owner in &map) {
@@ -86,7 +78,7 @@ fn main() {
             areas[owner] += 1;
         }
     });
-    println!("{:?}", areas);
+    println!("{areas:?}");
 
     println!(
         "largest area closest: {:?}",
@@ -100,7 +92,6 @@ fn main() {
         .filter(|m| points.iter().map(|p| manhattan(m, p)).sum::<usize>() < 10000)
         .count();
     println!(
-        "Number of grid points with a summed distance < 10000: {}",
-        close_area
+        "Number of grid points with a summed distance < 10000: {close_area}"
     );
 }

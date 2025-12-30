@@ -56,16 +56,16 @@ impl FromStr for Vein {
     fn from_str(s: &str) -> Result<Vein, Error> {
         let comma = s
             .find(',')
-            .ok_or_else(|| anyhow!("missing comma in vein: {:?}", s))?;
+            .ok_or_else(|| anyhow!("missing comma in vein: {s:?}"))?;
         let eq1 = s[..comma].trim();
         let eq2 = s[comma + 1..].trim();
         if eq1.len() < 2 || &eq1[1..2] != "=" || eq2.len() < 2 || &eq2[1..2] != "=" {
-            bail!("missing '=' in vein: {:?}", s);
+            bail!("missing '=' in vein: {s:?}");
         }
         let (xeq, yeq) = match (&eq1[..1], &eq2[..1]) {
             ("x", "y") => (&eq1[2..], &eq2[2..]),
             ("y", "x") => (&eq2[2..], &eq1[2..]),
-            _ => bail!("odd axis labels in vein: {:?}", s),
+            _ => bail!("odd axis labels in vein: {s:?}"),
         };
 
         fn parse_range(s: &str) -> Result<Range<usize>, Error> {
@@ -247,7 +247,7 @@ fn main() -> Result<(), Error> {
     bounds.x.start -= 1;
     bounds.x.end += 1;
 
-    println!("map dimensions: {:?}", bounds);
+    println!("map dimensions: {bounds:?}");
     let mut map = Array2::<char>::from_elem((bounds.y.end, bounds.x.end), ' ');
     for vein in veins {
         for (x, y) in &vein {
@@ -269,7 +269,7 @@ fn main() -> Result<(), Error> {
         }
     }
 
-    println!("Total water: {}", water);
+    println!("Total water: {water}");
 
     let mut retained = 0;
     for r in bounds.y.clone() {
@@ -280,7 +280,7 @@ fn main() -> Result<(), Error> {
         }
     }
 
-    println!("Total water: {}", retained);
+    println!("Total water: {retained}");
 
     Ok(())
 }

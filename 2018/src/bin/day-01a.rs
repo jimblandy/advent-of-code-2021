@@ -15,7 +15,7 @@ fn main() -> Result<()> {
         frequency += isize::from_str(number.trim())?;
     }
 
-    println!("{}", frequency);
+    println!("{frequency}");
 
     Ok(())
 }

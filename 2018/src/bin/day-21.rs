@@ -47,10 +47,10 @@ fn main() {
             if r1 < 256 {
                 break;
             }
-            r1 = r1 / 256;
+            r1 /= 256;
         }
 
-        println!("(28) r3 == {}", r3);
+        println!("(28) r3 == {r3}");
         if r3 == 13975413 {
             seen += 1;
             if seen == 3 {

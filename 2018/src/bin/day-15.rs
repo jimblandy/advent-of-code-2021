@@ -98,7 +98,7 @@ impl FromStr for Map {
                     '.' => Square::Empty,
                     'G' => Square::new_unit(Tribe::Goblin),
                     'E' => Square::new_unit(Tribe::Elf),
-                    _ => bail!("Bad map character: {:?}", ch),
+                    _ => bail!("Bad map character: {ch:?}"),
                 };
             }
             let mut units_hp_set = 0;
@@ -108,7 +108,7 @@ impl FromStr for Map {
                     let next_tribe = match cursor.next() {
                         Some('G') => Tribe::Goblin,
                         Some('E') => Tribe::Elf,
-                        ch => bail!("Bad hp tribe character: {:?}", ch),
+                        ch => bail!("Bad hp tribe character: {ch:?}"),
                     };
                     if cursor.next() != Some('(') {
                         bail!("expected '(' after hp tribe");
@@ -124,15 +124,12 @@ impl FromStr for Map {
                         if units_hp_set > width {
                             bail!("hp data has more units than map");
                         }
-                        match &mut map[[row, units_hp_set - 1]] {
-                            Square::Unit { tribe, hit_points } => {
-                                if *tribe != next_tribe {
-                                    bail!("hp data doesn't match units in map");
-                                }
-                                *hit_points = usize::from_str(&tail[..num_end])?;
-                                break;
+                        if let Square::Unit { tribe, hit_points } = &mut map[[row, units_hp_set - 1]] {
+                            if *tribe != next_tribe {
+                                bail!("hp data doesn't match units in map");
                             }
-                            _ => (),
+                            *hit_points = usize::from_str(&tail[..num_end])?;
+                            break;
                         }
                     }
                 }
@@ -197,11 +194,7 @@ impl Map {
         let mut units = self.units();
         units.reverse();
         while let Some(unit) = units.pop() {
-            assert!(if let Square::Unit { .. } = self.0[unit] {
-                true
-            } else {
-                false
-            });
+            assert!(matches!(self.0[unit], Square::Unit { .. }));
             match self.turn(unit) {
                 TurnOutcome::NoEnemiesLeft => return false,
                 TurnOutcome::NoEnemiesInRange | TurnOutcome::NoKill => (),
@@ -286,7 +279,7 @@ impl Map {
         // Among all 'in range' squares, choose the one that comes first in
         // reading order.
         in_range.sort();
-        match in_range.get(0) {
+        match in_range.first() {
             Some(first) => Ok(*first),
             None => Err(self.units().into_iter().any(|u| match self.0[u] {
                 Square::Unit { tribe: t, .. } => t.is_enemy(tribe),
@@ -376,9 +369,8 @@ impl Map {
         let mut units = Vec::new();
         for row in 0..self.0.len_of(Axis(0)) {
             for col in 0..self.0.len_of(Axis(1)) {
-                match &self.0[[row, col]] {
-                    Square::Unit { .. } => units.push((row, col)),
-                    _ => (),
+                if let Square::Unit { .. } = &self.0[[row, col]] {
+                    units.push((row, col));
                 }
             }
         }
@@ -466,12 +458,9 @@ impl fmt::Display for Map {
             }
             let mut sep = " ";
             for col in 0..self.0.len_of(Axis(1)) {
-                match self.0[[row, col]] {
-                    Square::Unit { tribe, hit_points } => {
-                        write!(f, "{}{}({})", sep, tribe.symbol(), hit_points)?;
-                        sep = ", ";
-                    }
-                    _ => (),
+                if let Square::Unit { tribe, hit_points } = self.0[[row, col]] {
+                    write!(f, "{}{}({})", sep, tribe.symbol(), hit_points)?;
+                    sep = ", ";
                 }
             }
             f.write_str("\n")?;
@@ -1032,14 +1021,13 @@ mod test_map {
 
 fn main() -> Result<(), Error> {
     let mut map = Map::from_str(INPUT)?;
-    println!("Initial map:{}", map);
+    println!("Initial map:{map}");
     let (rounds, total_hp) = map.combat();
     println!(
-        "Combat ends after {} full rounds, with {} total hit points left",
-        rounds, total_hp
+        "Combat ends after {rounds} full rounds, with {total_hp} total hit points left"
     );
     println!("Outcome: {} * {} = {}", rounds, total_hp, rounds * total_hp);
-    println!("Final map:{}", map);
+    println!("Final map:{map}");
 
     println!("\nPart 2: What damage would elves need to inflict to all survive?");
     let mut map = Map::from_str(INPUT)?;
@@ -1056,16 +1044,15 @@ fn main() -> Result<(), Error> {
         let just_before = map.clone();
         if !map.round() {
             println!(
-                "Combat ended with no elf deaths, after {} complete rounds!",
-                rounds
+                "Combat ended with no elf deaths, after {rounds} complete rounds!"
             );
-            println!("final map:{}", map);
+            println!("final map:{map}");
             break;
         }
         rounds += 1;
         if map.census().elves != initial_census.elves {
-            println!("first elf death during round #{}!", rounds);
-            println!("pre-death map:{}", just_before);
+            println!("first elf death during round #{rounds}!");
+            println!("pre-death map:{just_before}");
             break;
         }
     }
@@ -1074,8 +1061,7 @@ fn main() -> Result<(), Error> {
     map.1.elf_damage = elf_damage;
     let (rounds, total_hp) = map.combat();
     println!(
-        "Combat ends after {} full rounds, with {} total hit points left",
-        rounds, total_hp
+        "Combat ends after {rounds} full rounds, with {total_hp} total hit points left"
     );
     println!("Outcome: {} * {} = {}", rounds, total_hp, rounds * total_hp);
 

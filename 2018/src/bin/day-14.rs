@@ -23,12 +23,12 @@ fn main() {
             recipes.push(sum);
             tail = (tail * 10) + sum;
         }
-        tail = tail % modulus;
+        tail %= modulus;
         a = (a + recipes[a] + 1) % recipes.len();
         b = (b + recipes[b] + 1) % recipes.len();
     }
 
-    println!("{} {}", a, b);
+    println!("{a} {b}");
     println!("{}", recipes.len() - len);
     println!("{:?}", &recipes[recipes.len() - 20..]);
     /*
