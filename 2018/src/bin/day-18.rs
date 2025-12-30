@@ -1,8 +1,7 @@
-extern crate advent_of_code_2018 as aoc;
-extern crate ndarray;
+use aoc_utils as aoc;
 
 use aoc::{cartesian_product, parse_map};
-use ndarray::{Array2, Axis};
+use aoc::ndarray::{Array2, Axis};
 
 #[allow(dead_code)]
 static TEST_INPUT: &str = include_str!("day-18.test");

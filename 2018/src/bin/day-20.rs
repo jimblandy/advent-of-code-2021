@@ -1,10 +1,9 @@
-extern crate advent_of_code_2018 as aoc;
-extern crate ndarray;
+use aoc_utils as aoc;
 
 use anyhow::{bail, Error};
 use aoc::bfs::breadth_first;
 use aoc::{cartesian_product, union_ranges, Cursor};
-use ndarray::{Array2, ArrayView1};
+use aoc::ndarray::{Array2, ArrayView1};
 use std::collections::HashSet;
 use std::convert::{TryFrom, TryInto};
 use std::fmt;
@@ -348,7 +347,7 @@ impl fmt::Display for Map {
         }
 
         vertical_doors(Dir::North, self.0.row(0), f)?;
-        for row in self.0.genrows() {
+        for row in self.0.rows() {
             if row[0].has(Dir::West) {
                 f.write_str(" ")
             } else {

@@ -1,9 +1,7 @@
-extern crate advent_of_code_2018 as aoc;
-extern crate ndarray;
-
+use aoc_utils as aoc;
 use aoc::astar_weighted::astar_weighted;
 use aoc::Manhattan;
-use ndarray::{Array2, Axis};
+use aoc::ndarray::{Array2, Axis};
 use std::collections::HashMap;
 use std::fmt;
 use std::iter::{from_fn, FromIterator};
@@ -195,7 +193,7 @@ impl RescueState {
 #[rustfmt::skip]
 #[test]
 fn test_rescue_state() {
-    use ndarray::arr2;
+    use aoc_utils::ndarray::arr2;
 
     let map = arr2(&[
         [0, 1, 2], // rocky, wet, narrow

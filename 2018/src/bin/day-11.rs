@@ -1,7 +1,4 @@
-extern crate advent_of_code_2018;
-extern crate ndarray;
-
-use advent_of_code_2018::cartesian_product;
+use aoc_utils::{cartesian_product, ndarray};
 use ndarray::Array2;
 use std::cmp::min;
 

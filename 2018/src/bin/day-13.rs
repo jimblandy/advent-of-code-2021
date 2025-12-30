@@ -1,8 +1,6 @@
 #![allow(dead_code)]
 
-extern crate ndarray;
-
-use ndarray::{Array2, Axis};
+use aoc_utils::ndarray::{Array2, Axis};
 use std::cmp::max;
 use std::fmt;
 

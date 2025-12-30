@@ -8,7 +8,7 @@
 ///
 /// For example:
 ///
-///     # extern crate advent_of_code_2018 as aoc;
+///     # extern crate aoc_utils as aoc;
 ///     # use aoc::unfold::unfold;
 ///     let fib = unfold((0, 1), |(a, b)| Some(((b, a+b), b)));
 ///     assert_eq!(fib.take(5).collect::<Vec<_>>(), vec![1,1,2,3,5]);

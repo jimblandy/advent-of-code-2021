@@ -51,7 +51,7 @@ where
             from: start.clone(),
             to: neighbor,
             path_weight: weight,
-            estimate: estimate,
+            estimate,
         });
     }
 
@@ -107,10 +107,7 @@ where
     type Item = Edge<N, W>;
 
     fn next(&mut self) -> Option<Edge<N, W>> {
-        let edge = match self.pending.pop() {
-            None => return None,
-            Some(e) => e,
-        };
+        let edge = self.pending.pop()?;
         if self.visited.insert(edge.to.clone()) {
             for (neighbor, weight, estimate) in (self.neighbors)(&edge.to) {
                 self.pending.push(Edge {

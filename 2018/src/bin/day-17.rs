@@ -1,13 +1,12 @@
 #![allow(dead_code)]
 
-extern crate advent_of_code_2018 as aoc;
+use aoc_utils as aoc;
 extern crate itertools;
-extern crate ndarray;
 
 use anyhow::{anyhow, bail, Error, Result};
 use aoc::union_ranges;
 use itertools::Itertools;
-use ndarray::{Array2, Axis};
+use aoc::ndarray::{Array2, Axis};
 use std::io::{BufWriter, Write};
 use std::ops::Range;
 use std::str::FromStr;

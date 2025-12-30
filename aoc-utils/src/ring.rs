@@ -27,7 +27,7 @@ impl<T> Element<T> {
     }
 
     fn is_singleton(&self) -> bool {
-        self.next as *const _ == self as *const _
+        std::ptr::eq(self.next, self)
     }
 }
 

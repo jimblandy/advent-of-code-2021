@@ -1,5 +1,5 @@
-extern crate advent_of_code_2018 as aoc;
-extern crate ndarray;
+use aoc_utils as aoc;
+use aoc_utils::ndarray;
 
 use anyhow::{bail, Error};
 use aoc::astar::{astar, Edge};

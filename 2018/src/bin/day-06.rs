@@ -1,9 +1,6 @@
-#[macro_use]
-extern crate ndarray;
-extern crate advent_of_code_2018 as root;
-
-use ndarray::{Array2, Axis};
-use root::{cartesian_product, edge_indexes2, IteratorExt};
+use aoc_utils::ndarray;
+use ndarray::{azip, Array2, Axis};
+use aoc_utils::{cartesian_product, edge_indexes2, IteratorExt};
 use std::str::FromStr;
 
 #[allow(dead_code)]
@@ -84,7 +81,7 @@ fn main() {
     println!("{:?}", infinite);
 
     let mut areas = vec![0; points.len()];
-    azip!(owner (&map) in {
+    azip!((&owner in &map) {
         if owner != TIE && !infinite[owner] {
             areas[owner] += 1;
         }

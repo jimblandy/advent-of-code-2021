@@ -72,19 +72,11 @@ mod ops {
     }
 
     pub fn gt(a: Word, b: Word) -> Word {
-        if a > b {
-            1
-        } else {
-            0
-        }
+        if a > b { 1 } else { 0 }
     }
 
     pub fn eq(a: Word, b: Word) -> Word {
-        if a == b {
-            1
-        } else {
-            0
-        }
+        if a == b { 1 } else { 0 }
     }
 
     pub fn set(a: Word) -> Word {
@@ -191,7 +183,7 @@ pub fn assemble<'a>(asm: &'a [AssemblyInsn]) -> Vec<Insn<'a>> {
                 .find(|(name, _sem)| name == &mnemonic)
                 .expect("Unrecognized mnemonic?");
             Insn {
-                semantic: &entry,
+                semantic: entry,
                 a,
                 b,
                 c,

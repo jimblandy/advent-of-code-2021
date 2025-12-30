@@ -96,10 +96,7 @@ where
     type Item = Edge<N>;
 
     fn next(&mut self) -> Option<Edge<N>> {
-        let edge = match self.pending.pop() {
-            None => return None,
-            Some(e) => e,
-        };
+        let edge = self.pending.pop()?;
         if self.visited.insert(edge.to.clone()) {
             for (neighbor, estimate) in (self.neighbors)(&edge.to) {
                 self.pending.push(Edge {

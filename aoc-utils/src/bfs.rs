@@ -50,10 +50,7 @@ where
     type Item = (N, N, usize);
 
     fn next(&mut self) -> Option<(N, N, usize)> {
-        let (from, to, length) = match self.pending.pop_front() {
-            None => return None,
-            Some(p) => p,
-        };
+        let (from, to, length) = self.pending.pop_front()?;
         if self.visited.insert(to.clone()) {
             for neighbor in (self.neighbors)(&to) {
                 self.pending.push_back((to.clone(), neighbor, length + 1));
