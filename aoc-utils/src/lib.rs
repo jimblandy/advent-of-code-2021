@@ -11,6 +11,7 @@ pub mod intersection;
 pub mod machine;
 pub mod ring;
 pub mod unfold;
+pub mod ones_iter;
 
 pub trait IteratorExt: Iterator {
     fn unique_min_by_key<B, F>(self, f: F) -> Option<Self::Item>
@@ -341,4 +342,13 @@ where
             + manhattan(self.2, b.2)
             + manhattan(self.3, b.3)
     }
+}
+
+/// Limit the calling process's memory consumption to 1GiB.
+pub fn limit_memory() {
+    nix::sys::resource::setrlimit(
+        nix::sys::resource::Resource::RLIMIT_DATA,
+        1024 * 1024 * 1024,
+        nix::sys::resource::RLIM_INFINITY,
+    ).expect("setrlimit system call failed");
 }
