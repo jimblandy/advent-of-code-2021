@@ -1,7 +1,6 @@
-use aoc::astar_weighted::astar_weighted;
-use aoc::ndarray::{Array2, Axis};
-use aoc::Manhattan;
-use aoc_utils as aoc;
+use aoc_utils::astar_weighted::astar_weighted;
+use aoc_utils::ndarray::{Array2, Axis};
+use aoc_utils::Manhattan;
 use std::collections::HashMap;
 use std::fmt;
 use std::iter::{from_fn, FromIterator};

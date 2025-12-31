@@ -1,11 +1,8 @@
-use aoc_utils as aoc;
-use aoc_utils::ndarray;
-
 use anyhow::{bail, Error};
-use aoc::astar::{astar, Edge};
-use aoc::bfs::breadth_first;
-use aoc::{first_run, map_bounds, select_iter, Manhattan};
-use ndarray::{Array2, Axis};
+use aoc_utils::ndarray::{Array2, Axis};
+use aoc_utils::astar::{astar, Edge};
+use aoc_utils::bfs::breadth_first;
+use aoc_utils::{first_run, map_bounds, select_iter, Manhattan};
 use std::fmt;
 use std::str::FromStr;
 

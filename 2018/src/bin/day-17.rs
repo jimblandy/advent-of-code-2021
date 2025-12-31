@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
-use aoc_utils as aoc;
 extern crate itertools;
 
 use anyhow::{anyhow, bail, Error, Result};
-use aoc::ndarray::{Array2, Axis};
-use aoc::union_ranges;
+use aoc_utils::ndarray::{Array2, Axis};
+use aoc_utils::union_ranges;
 use itertools::Itertools;
 use std::io::{BufWriter, Write};
 use std::ops::Range;

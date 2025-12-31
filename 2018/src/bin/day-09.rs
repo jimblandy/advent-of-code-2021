@@ -1,8 +1,6 @@
 #![allow(dead_code)]
 
-extern crate advent_of_code_2018;
-
-use advent_of_code_2018::ring::Ring;
+use aoc_utils::ring::Ring;
 
 /// Play an `p`-player, `n`-marble game (not counting the 'zero' marble), and
 /// return a vector of the scores of each player.

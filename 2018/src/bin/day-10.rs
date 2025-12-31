@@ -3,9 +3,7 @@ static TEST_INPUT: &str = include_str!("day-10.test");
 #[allow(dead_code)]
 static INPUT: &str = include_str!("day-10.input");
 
-extern crate advent_of_code_2018;
-
-use advent_of_code_2018::splits;
+use aoc_utils::splits;
 use std::ops::Range;
 use std::str::FromStr;
 

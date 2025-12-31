@@ -1,9 +1,7 @@
-use aoc_utils as aoc;
-
 use anyhow::{bail, Error};
-use aoc::bfs::breadth_first;
-use aoc::ndarray::{Array2, ArrayView1};
-use aoc::{cartesian_product, union_ranges, Cursor};
+use aoc_utils::bfs::breadth_first;
+use aoc_utils::ndarray::{Array2, ArrayView1};
+use aoc_utils::{cartesian_product, union_ranges, Cursor};
 use std::collections::HashSet;
 use std::convert::{TryFrom, TryInto};
 use std::fmt;

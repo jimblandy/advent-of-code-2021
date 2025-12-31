@@ -1,6 +1,4 @@
-extern crate advent_of_code_2018 as aoc;
-
-use aoc::Manhattan;
+use aoc_utils::Manhattan;
 use std::collections::HashSet;
 use std::mem::replace;
 

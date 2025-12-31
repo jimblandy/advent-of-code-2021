@@ -1,7 +1,5 @@
-extern crate advent_of_code_2018 as aoc;
-
 #[allow(unused_imports)]
-use aoc::machine::{assemble, State, Word};
+use aoc_utils::machine::{assemble, State, Word};
 
 /*
 mod input {

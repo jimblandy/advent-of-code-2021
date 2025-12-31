@@ -1,9 +1,7 @@
-extern crate advent_of_code_2018 as aoc;
-
-use aoc::machine::{assemble, State, Word};
+use aoc_utils::machine::{assemble, State, Word};
 
 mod input {
-    use aoc::machine::AssemblyInsn;
+    use aoc_utils::machine::AssemblyInsn;
     include!("day-19-input.rsi");
 }
 

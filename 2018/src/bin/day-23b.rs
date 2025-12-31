@@ -1,5 +1,3 @@
-extern crate advent_of_code_2018 as aoc;
-
 use std::cmp::{max, min};
 use std::iter::FromIterator;
 
